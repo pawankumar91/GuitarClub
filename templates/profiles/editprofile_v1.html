@@ -1,0 +1,13 @@
+<html>
+
+    <form action = "/accounts/profile_v1/" method = "post" >{% csrf_token %}
+
+<p> Additional Info</p>
+{{follow.bandFollows}}<br><br>
+{{follow.bandLikes}}<br><br>
+<p>Additional Info Ends here...</p>
+
+    <input type = "submit" value="submit"/>
+    </form>
+
+</html>

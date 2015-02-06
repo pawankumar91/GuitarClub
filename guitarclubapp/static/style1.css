@@ -1,0 +1,99 @@
+@font-face {
+    font-family:"Fertigo";
+    src: url("Fertigo Pro Regular.ttf") /* TTF file for CSS3 browsers */
+}
+@font-face {
+    font-family:"Delicious-Italic";
+    src: url("Delicious-Italic.ttf") /* TTF file for CSS3 browsers */
+}
+.nav{
+    background-image: url('/static/nav_background.jpg ');
+    width : 100%;
+    overflow:hidden;
+    background-color:#30567B;
+    background-repeat: no-repeat;
+      -webkit-background-size: cover;
+     -moz-background-size: cover;
+       -o-background-size: cover;
+          background-size: cover;
+}
+.nav li  {
+    display:inline;
+     list-style:none;
+}
+.nav li.pad a{
+    color:#FFF;
+    font-size: 14px;
+    font-family: "lato";
+    padding: 10px 6px;
+    top:-5px;
+    position:relative;
+}
+.nav a:hover{
+    font-weight: bold;
+    text-decoration: none;
+}
+ .nav li ul{
+ display:none;
+ height:auto;
+ padding:0px;
+ margin:0px;
+ border:0px;
+ position:absolute;
+ width:200px;
+ z-index:200;
+ right:13.5%;
+ }
+.nav #forgot_p{
+    position:relative;
+    left:37%;
+    font-size:14px;
+    color: #FFFFFF;
+    font-family:"lato";
+}
+#login, #signup{
+    width:77px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    -o-border-radius: 7px;
+    -ms-??border-radius: 7px;
+    border-radius: 7px;
+    border: 1px solid #d1d1d1;
+    font: bold 12px Sans-serif;
+    padding: 6px 15px 6px 10px;
+}
+
+#username , #pwd{
+    color: #9E9E9E;
+    width:33%;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -o-border-radius: 10px;
+    -ms-??border-radius: 10px;
+    border-radius: 10px;
+    border: 1px solid #d1d1d1;
+    font: bold 12px Sans-serif;
+    padding: 6px 15px 6px 10px;
+}
+.nav ul#right{
+    margin-left:42%;
+    position: relative;
+    margin-top:1%;
+}
+.nav ul#left{
+    position: relative;
+    margin-top:1%;
+}
+
+.nav1{
+    display:none;
+    background-image: url('/static/nav_background.jpg ');
+    width : 100%;
+    overflow:hidden;
+    background-color:#30567B;
+    background-repeat: no-repeat;
+      -webkit-background-size: cover;
+     -moz-background-size: cover;
+       -o-background-size: cover;
+          background-size: cover;
+}

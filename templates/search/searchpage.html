@@ -1,0 +1,13 @@
+<html>
+
+   {% for i in pp %}
+   <img width = "100px" src = "{{i.profilePic.url}}">
+   <p>name:{{i.user.first_name}} {{i.user.last_name}}</p><br>
+   <p>HomeTown:{{i.homeTown}}</p><br>
+   <p>Current Place : {{i.currentPlace}}</p><br>
+   <p>Id : {{i.user_id}}</p>
+
+   {% endfor %}
+
+
+</html>

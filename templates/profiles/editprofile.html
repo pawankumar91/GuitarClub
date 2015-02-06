@@ -1,0 +1,28 @@
+<html>
+
+    <form action = "/accounts/profile/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+
+    {{first_name}}
+    first name
+    {% if form.instance.profilePic.url %}
+        <img src="{{ form.instance.profilePic.url  }}"> <br>
+    {%endif%}
+
+   <label> Change Picture</label> {{form.profilePic}}<br>
+<label>Date of Birth </label>    {{form.dob}}<br>
+    <label>Gender</label>{{form.gender}}<br>
+    <label>Home Town</label>{{form.homeTown}}<br>
+    <label> Current Place </label>{{form.currentPlace}}<br>
+
+    <input type = "submit" value="submit"/>
+    </form>
+
+
+
+<p> Additional Info</p>
+{{follow.bandFollows}}<br><br>
+{{follow.bandLikes}}<br><br>
+<p>Additional Info Ends here...</p>
+
+
+</html>

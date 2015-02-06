@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html id="main">
+    <Title>Guitar Club</title>
+    {% load staticfiles %}
+    <head>
+        <meta charset="utf-8" />
+        <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
+        <meta name="robots" content="all">
+       <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400;300' rel='stylesheet' type='text/css'>
+        <link href="/static/editorpage.css" rel="stylesheet">
+
+        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Old+Standard+TT' rel='stylesheet' type='text/css'>
+
+        <script async src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" async src="http://code.jquery.com/jquery-1.7.2.js"></script>
+        <script type='text/javascript' async src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+
+        <script type="text/javascript" async src="/static/editorpage.js"></script>
+        <link rel="stylesheet" href="http://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <!--[if gte IE 7]>
+        <style type="text/css">
+
+
+        </style>
+        <![endif]-->
+    </head>
+        <body>
+
+        <div class="main-container">
+            <!-- HEADER -->
+            <header class="block">
+                <div class='logo'>
+                    <img alt="Logo" src="/static/Logo.jpg ">
+                </div>
+                <div class="search_bar">
+                        <li class = "togglemenu icon fontawesome-list scnd-font-color1" >
+                            <ul id="level-onee" data-filter="true" class = "pull-right" data-input="#filterBasic-input">
+                                <li ><a href="#">Bands</a></li>
+                                <li ><a href="#">Songs</a></li>
+                                <li ><a href="#">All</a></li>
+    			            </ul>
+			            </li>
+                        <li id="box">
+                           <form action="/search/" method = "get">
+                                    <input type="submit" value="" />
+                                    <input id="filterBasic-input"  name="q" input type="search" placeholder="Search..." />
+                           </form>
+                        </li>
+                </div>
+                <div class="header-menu-div" style = "position:relative ; left:14% ; width : 85% ">
+                <ul class="header-menu">
+                    <li>
+                        <a class="header-menu-tab" href="#1"><span class="icon entypo-cog scnd-font-color"></span><font>Settings</font></a>
+                    </li>
+                    <li>
+                        <a class="header-menu-tab" href="#2"><span class="icon fontawesome-user scnd-font-color"></span><font>Account</font></a>
+                    </li>
+                    <li>
+                        <a class="header-menu-tab" href="#3"><span class="icon fontawesome-envelope scnd-font-color"></span><font>Messages</font></a>
+                        <a class="header-menu-number" href="#4">5</a>
+                    </li>
+                    <li>
+                        <a class="header-menu-tab" href="#5"><span class="icon fontawesome-star-empty scnd-font-color"></span><font>Favorites</font></a>
+                    </li>
+               </ul>
+               </div>
+               <div class="profile-menu">
+              <li class = " dropdown entypo-down-open scnd-font-color" >
+                            <ul id="level-onee" class = "pull-right" >
+                                <li ><a href="#">Settings</a></li>
+                                <li ><a href="#">Privacy</a></li>
+                                <li ><a href="/accounts/logout/">Logout</a></li>
+    			            </ul>
+			 </li>
+                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.instance.profilePic.url  }}')">
+                        </div>
+               </div>
+        </header>
+
+                        <!-- MIDDLE-CONTAINER -->
+            <div class="middle-container">
+
+                <div class="profile"> <!-- PROFILE (MIDDLE-CONTAINER) -->
+                    <div class="profile-left">
+                        <form action = "/accounts/profile/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+                        <input type="button" class="red" id="pseudobutton" value="Upload Pic">
+                        <div class="button1">{{form.profilePic}}<br></div>
+                        <div class="profile-picture big-profile-picture clear " style="background-image:url('{{ form.instance.profilePic.url  }}')">
+                        </div>
+
+                        <h1 class="user-name">{{first_name}} {{last_name}}</h1>
+                        <div class="entry">
+                            <h2 id="Gender">Gender : </h2>
+                            {{form.gender}}
+                        </div>
+                        <div class="entry">
+                            <h2 id="dob">DOB:</h2>
+                            {{form.dob}}
+                        </div>
+                        <div class="entry">
+                            <h2 id="livingin">Living In:</h2>
+                            {{form.currentPlace}}
+                        </div>
+                        <div class="entry">
+                            <h2 id="hometown">Home Town:</h2>
+                            {{form.homeTown}}
+                        </div>
+                        <div class="pic_submit">
+                            <br><input type = "submit" value="Save Changes"/>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="profile_add">
+
+                    <form method="post" action="/accounts/register/">{% csrf_token %}
+                        <INPUT id ="save_changes" type="button" value="Save Changes" ><br>
+                    <div class="profile_add1">
+                        <p>Music Interests</p><br><br>
+                        <ul>
+                            <li>
+                                <input id="genre" type="text" placeholder="Genre" /><br>
+                            </li>
+                            <li>
+                                <input id="songs" type="text" placeholder="Songs" /><br>
+                            </li>
+                        </ul>
+
+                    </form>
+                    </div>
+                    <div class = "profile_add2">
+                        <p>Music Interests</p><br><br>
+                        {{follow.bandFollow}}<br>
+                        {{follow.bandLikes}}<br>
+                    </div>
+                    <div class = "profile_add3">
+                        <p>Music Interests</p><br><br>
+                        {{follow.bandFollow}}<br>
+                        {{follow.bandLikes}}<br>
+                    </div>
+                    <div class = "profile_add4">
+                        <p>Genres Interested In</p><br><br>
+                         <ul class = "pull-right" id="AddGenre">
+                        <a  href="accounts/profile_v3/generes/return/" onclick="return popitup('/accounts/profile_v3/generes')"
+                        > Add genres you like </a>
+                        </ul>
+                            {{generes.generes}}
+
+                    </div>
+<!-- ###################################################Vivek-->
+                    <div>
+                        <script language="javascript" type="text/javascript">
+<!--
+function popitup(url) {
+    newwindow=window.open(url,'{{title}}','height=700,width=550');
+    if (window.focus) {newwindow.focus()}
+    return false;
+}
+
+// -->
+</script>
+
+
+
+                    </div>
+<!--#################################################Vivek-->
+                </div>
+                </div>
+<div class = "footer">
+            <h3 class="float">&copy; 2014-15 The Guitar Club. All rights reserved.</h3>
+            <h5>Contact US</h5>
+            <div id="footer_address">
+                <p>Registered Office:<br/>
+                Bangalore, Karnataka, <br/>
+                India<br/>
+                (not our trading address)</p>
+            </div>
+            <div class="footer-nav">
+                <ul class = "pull-right">
+                    <li><a href="/home/">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="/privacy/">Privacy & Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+</div> <!-- end main-container -->
+
+    </body>
+
+</html>

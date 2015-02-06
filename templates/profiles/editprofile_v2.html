@@ -1,0 +1,18 @@
+<html>
+
+ <form method='post'>{% csrf_token %}
+  <label> Countries </label>
+
+  <p>new </p>
+  {{form}}
+  <p>end new</p>
+
+        <select name="Countries" id="Countries" class="multiselect" multiple="multiple">
+            <option value="AUT" selected="selected">Austria</option>
+            <option value="DEU" selected="selected">Germany</option>
+            <option value="NLD" selected="selected">Netherlands</option>
+        </select>
+
+    <input type='submit' value='submit'>
+</form>
+</html>

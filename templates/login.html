@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>GuitarClub - Login</title>
+
+    <link rel="stylesheet" href="/static/login_style.css" media="screen" type="text/css" />
+    <link rel="stylesheet" href="/static/newreg_style.css" media="screen" type="text/css" />
+    <script type="text/javascript" async src="/static/newreg.js"></script>
+
+</head>
+
+<body>
+
+  <html lang="en-US">
+  <head>
+
+    <meta charset="utf-8">
+
+    <title>Login</title>
+
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">
+
+    <!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+ <![endif]-->
+
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <div id="login">
+
+        <form action="/accounts/auth/" method="post">{% csrf_token %}
+
+          <fieldset class="clearfix">
+
+            <p><span class="fontawesome-user"></span><input type="text" value="Username" name = "Username" onBlur="if(this.value == '') this.value = 'Username'" onFocus="if(this.value == 'Username') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
+            <p><span class="fontawesome-lock"></span><input type="password"  value="Password" name = "Password" onBlur="if(this.value == '') this.value = 'Password'" onFocus="if(this.value == 'Password') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+            <p><input type="submit" value="Sign In"></p>
+
+          </fieldset>
+
+        </form>
+
+        <div class = 'signupnow'>
+            <i></i>
+            <p>Not a member? <a href="/accounts/register/">Sign up now</a> <span class="fontawesome-arrow-right"></span></p>
+            <p><a href="/accounts/password_reset/"> Forgot Password? </a></p>
+        </div>
+
+      </div> <!-- end login -->
+
+    </div>
+
+    <!-- signup form -->
+    <div class="registration">
+
+      <!-- Menu icon -->
+      <div class="icon-close">
+        <img src="http://s3.amazonaws.com/codecademy-content/courses/ltp2/img/uber/close.png">
+      </div>
+
+      <form method="post" action="/register/">{% csrf_token %}
+        <table border="0">
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Register" />
+    </form>
+
+    </div>
+
+  </body>
+</html>
+
+</body>
+
+</html>
