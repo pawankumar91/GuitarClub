@@ -9,6 +9,9 @@ from models import userFollowActivity
 from models import Choices
 from models import multiChoice
 from models import Generes
+from models import bandPage
+from models import bandMembers
+from django.forms.formsets import formset_factory
 
 class MyRegistrationForm(UserCreationForm):
 
@@ -82,3 +85,50 @@ class formForm(forms.ModelForm):
         model=Generes
         fields=("generes",)
 
+    def __init__(self, *args, **kwargs):
+        super(formForm, self).__init__(*args, **kwargs)
+        # assign a (computed, I assume) default value to the choice field
+        #generes = Generes.objects.get(user=request.user)
+        self.initial['generes'] = 'Alternative'
+
+    def save(self, commit=True):
+        genre = super(formForm, self).save()
+        genre.generes = u'     '.join(self.cleaned_data['generes'])
+        genre.save()
+
+
+        return genre
+
+########band pages revisited - pawan
+
+class bandPageForm1(forms.ModelForm):
+    bandLogo = forms.ImageField(label=_('bandLogo'),required = False, error_messages = {'inavlid':_("Image Files Only")}, widget=forms.FileInput)
+    bandCover = forms.ImageField(label=_('bandLogo'),required = False, error_messages = {'inavlid':_("Image Files Only")}, widget=forms.FileInput)
+    genres = forms.MultipleChoiceField(label='Music Stlyes that you like', choices=Select_Generes, widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model=bandPage
+        fields=("bandName","bandLogo","bandCover","doc","memberCount","genres",)
+    def save(self, commit=True):
+        form = super(bandPageForm1, self).save()
+        form.generes = u'     '.join(self.cleaned_data['genres'])
+        form.save()
+        return form
+
+class bandPageForm2(forms.ModelForm):
+    memberUserName = forms.EmailField(widget=forms.TextInput(attrs=dict(required=True, max_length=30)), label=_("Email address"),error_messages={ 'invalid': _("This value must contain only letters, numbers and underscores.") })
+
+    class Meta:
+        model=bandMembers
+        fields=("memberUserName","access",)
+
+    def clean_email_id(self):
+        try:
+            user = User.objects.get(username__iexact=self.cleaned_data['memberUserName'])
+            if user:
+                return self.cleaned_data['memberUserName']
+        except User.DoesNotExist:
+            return ("No user found with the mentioned e-mail address")
+        raise forms.ValidationError(_("This email-id does not exists"))
+
+class bandPageForm3(forms.Form):
+    bandPageForm2Set = formset_factory(bandPageForm2, can_delete=True, extra=5)

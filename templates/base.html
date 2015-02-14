@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% block html %} {% endblock %}
+ {% load %}
+ {% load friendship_tags %}
+{% load staticfiles %}
+{% block title %} {% endblock %}
+
+
+<head>
+{% block meta %} {% endblock %}
+
+{% block fbmeta %} {% endblock %}
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400;300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Old+Standard+TT' rel='stylesheet' type='text/css'>
+        <script async src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" async src="http://code.jquery.com/jquery-1.7.2.js"></script>
+        <script type='text/javascript' async src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
+        <link rel="stylesheet" href="http://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <link href="/static/base.css" rel="stylesheet">
+                <script>
+                        function changeplh(){
+                    debugger;
+                 var sel = document.getElementById("selection");
+                    var textbx = document.getElementById("filterBasic-input");
+                    var indexe = sel.selectedIndex;
+                    if(indexe == 0) {
+                     $("#filterBasic-input").attr("placeholder", "Search Bands...");}
+                       if(indexe == 1) {
+                     $("#filterBasic-input").attr("placeholder", "Search Songs...");}
+					 if(indexe == 2) {
+                     $("#filterBasic-input").attr("placeholder", "Search All...");}
+                    }
+                </script>
+
+</head>
+
+{% block body %} {% endblock %}
+
+        <div class="main-container">
+            <!-- HEADER -->
+            <header class="block">
+                <div class='logo'>
+                    <a href="/accounts/loggedin/"><img alt="Logo" src="/static/Logo.jpg "></a>
+                </div>
+                <div class="search_bar">
+                        <li class = "togglemenu icon1 fontawesome-list scnd-font-color1" >
+                         <select id="selection" class="search_select" onchange="changeplh()">
+							 <option>Band</option>
+							 <option>Songs</option>
+							 <option>All</option>
+						</select>
+			            </li>
+                        <li id="box">
+                           <form action="/search/" method = "get">
+                                    <input type="submit" value="" />
+                                    <input id="filterBasic-input"  name="q" input type="search" placeholder="Search..." />
+                           </form>
+                        </li>
+                </div>
+                <div class="header-menu-div" style = "position:relative ; left:12% ; width :65% ">
+                <ul class="header-menu">
+                    <li >
+                        <a class="icon" href="/accounts/loggedin/"><i class="fa fa-home"></i></a>
+                    </li>
+                    <li>
+                        <a  class="icon" href="#3"><i class="fa fa-envelope-o"></i></a>
+                        <p class="header-menu-number">5</p>
+                    </li>
+
+                    <li class="icon">
+                        <i class="fa fa-users"></i>
+                        <p class="header-menu-number">{{a|friend_request_notify:self.user.id}}</p>
+                        <ul id="level-onee" class = "pull-right" >
+                                <li class="spacer" ></li>
+                                {% for friend_request in a|friend_requests:self.user %}
+                                <li id="hoverable">
+                                <font>{{ friend_request.first_name }} {{ friend_request.last_name}} wants to be friends with you</font>
+                                <a class=" accept icon" href = '/friend/accept/{{friend_request.pk}}/'><i class="fa fa-check"></i> </a>
+                                <a class="decline icon" href = '/friend/reject/{{friend_request.pk}}'><i class="fa fa-close"></i></a>
+                                </li>
+                                {% endfor %}
+
+
+                                {% load %}
+                                {% load friendship_tags %}
+                                {% for notify in a|friend_accpt_notify:self.user %}
+                                <li id="hoverable">
+                                    <font>{{notify.first_name}} {{notify.last_name}} has accepted your friend request</font>
+                                    <a class="icon" href="/friend/clearnotify/{{notify.username}}"><i class="entypo-cancel"></i></a>
+                                </li>
+                                 {% endfor %}
+
+                                <li id="hoverable" class="view-friends" ><a href = "/view/friends/{{self}}">View Friends</a></li>
+    			        </ul>
+                    </li>
+                    <li>
+                        <a class="icon" href="#1"><i class="fa fa-magic"></i></a>
+                    </li>
+               </ul>
+               </div>
+               <div class="profile-menu">
+
+                   <a href="/accounts/profile/">{% if form.user.first_name %}
+                                                            {{form.user.first_name}} {{form.user.last_name}}
+                                                {% else %}
+                                                            {{first_name}} {{last_name}}
+                                                {% endif %}</a>
+                   {% block small_pic %} {% endblock %}
+                  <li class = " dropdown entypo-down-open icon2" >
+                                <ul id="level-onee" class = "pull-right" >
+                                    <li class="spacer" ></li>
+                                    <li class="no-spacer"><a href="#">Manage Band</a></li>
+                                    <li class="no-spacer"><a href="/accounts/profile/">Profile</a></li>
+                                    <li class="no-spacer"><a href="#">Settings & Privacy</a></li>
+                                    <li class="no-spacer"><a href="/accounts/logout/">Logout</a></li>
+        			            </ul>
+    			 </li>
+
+               </div>
+        </header
+{% block content %} {% endblock %}
+
+<div class = "footer">
+            <h3 class="float">&copy; 2014-15 The Guitar Club. All rights reserved.</h3>
+            <h5>Contact US</h5>
+            <div id="footer_address">
+                <p>Registered Office:<br/>
+                Bangalore, Karnataka, <br/>
+                India<br/>
+                (not our trading address)</p>
+            </div>
+            <div class="footer-nav">
+                <ul class = "pull-right">
+                    <li><a href="/home/">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="/privacy/">Privacy & Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+</div> <!-- end main-container -->
+</body>
+</html>

@@ -32,7 +32,6 @@ from django.contrib.auth.tokens import default_token_generator
 #for email activation
 import datetime
 import random
-import sha
 import hashlib
 from django.core.mail import send_mail
 from guitarclubapp.models import UserProfile
@@ -49,6 +48,10 @@ from forms import userFollowActivityForm
 #multichoice forms
 from forms import multiChoiceForm
 from models import multiChoice
+
+#band pages
+
+from models import bandPage
 
 #guestpage
 def guestpage(request):
@@ -87,8 +90,11 @@ def auth_view(request):
         #return render_to_response("testit.html" ,{'username':username , 'password':password})
         return HttpResponseRedirect("/accounts/invalid/")
 
+@login_required
 def loggedin(request):
-    return render_to_response("home.html", {"full_name":request.user.username})
+    profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+    self = request.user
+    return render_to_response("home.html", {'form':profile, 'self':self})
 
 def invalid_login(request):
     return render_to_response("invalid_login.html")
@@ -167,12 +173,6 @@ def register_confirm(request, activation_key):
 def register_success(request):
     return render_to_response('register_success.html')
 
-
-
-
-@login_required
-def home(request):
-    return render_to_response('home.html',{ 'user': request.user })
 
 def logout_view(request):
     auth.logout(request)
@@ -257,17 +257,29 @@ def password_reset_done(request,
     return TemplateResponse(request, template_name, context,
                             current_app=current_app)
 
+
+
+def navbar(id):
+    profile= UserProfile.objects.select_related('user').get(user__id = id)
+    return profile
+
+
 #edit profile
 @csrf_protect
 @login_required
 def edit_profile(request):
     args = {}
     args.update(csrf(request))
+    #test navbar func
+    self = navbar(request.user.id)
+
+    #self = request.user
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user.profile)
         follow = userFollowActivity.objects.get(user=request.user)
         generes = Generes.objects.get(user=request.user)
 
+ #       generes =u','.join(self.cleaned_data['generes'])
         first_name = request.user.first_name
         last_name = request.user.last_name
         if form.is_valid():
@@ -275,7 +287,10 @@ def edit_profile(request):
             return HttpResponseRedirect('/accounts/loggedin/')
     else:
         form=UserProfileForm(instance=request.user.profile)
-        generes = Generes.objects.get(user=request.user)
+        try:
+            generes = Generes.objects.get(user=request.user)
+        except Generes.DoesNotExist:
+            generes = None
         follow = userFollowActivity.objects.get(user=request.user)
         first_name = request.user.first_name
         last_name = request.user.last_name
@@ -284,7 +299,8 @@ def edit_profile(request):
     args.update(csrf(request))
     args['form']=form
 
-    return render_to_response('editprofilepage.html',  {'form':form , 'follow':follow, 'first_name':first_name , 'last_name':last_name, 'generes':generes},context_instance=RequestContext(request))
+    return render_to_response('editprofilepage.html',  {'from_user':self, 'self':self, 'form':form , 'follow':follow, 'first_name':first_name , 'last_name':last_name,'generes':generes}
+    ,context_instance=RequestContext(request))
 
 
 #pawan --> bandfollow test
@@ -323,9 +339,6 @@ def multiChoice_v1(request):
     return render_to_response('editprofile_v2.html', {'form':form})
 
 
-def editprofilepage(request):
-    return render_to_response('editprofilepage.html')
-
 
 
 #########################################Search for users####################################
@@ -333,260 +346,162 @@ from django.db.models import Q
 @login_required
 def search(request):
     q = request.GET.get('q')
-    test = None
+    self = request.user
     if q is not None:
         test= UserProfile.objects.select_related("user").filter(Q(user__first_name__contains = q)
         | Q(user__last_name__contains = q)
         | Q(user__username__contains = q ))
-    return render_to_response( 'search.html', { 'pp':test},  context_instance = RequestContext(request))
+        profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+        from_user = profile.user.id
+        for i in test:
+            i.user1=from_user
+            to_user = i.user.id
+            i.user2 = str(from_user)+"|"+str(to_user)
+    return render_to_response( 'search.html', { 'pp':test, 'form':profile , 'self':self,"to":to_user},  context_instance = RequestContext(request))
 
-
+#form = self
 ########################view profile page###################################################
 @login_required
-def viewprofile(request , user_id = 40):
+def viewprofile(request , user_id = 40 , ctx = None):
     test= UserProfile.objects.select_related("user").get(user = user_id)
     follow = userFollowActivity.objects.get(user=user_id)
-
-    return render_to_response('viewprofilepage.html',  {'form':test , 'follow':follow},context_instance=RequestContext(request))
+    c={}
+    c.update(csrf(request))
+    from_user = request.user.id
+    to_user = test.user.id
+    use = str(from_user)+"|"+str(to_user)
+    self = request.user
+    profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+    return render_to_response('viewprofilepage.html',  {'profile':test ,'form':profile, 'follow':follow, 'ctx':ctx, 'from_user':use, 'self':self}, context_instance = RequestContext(request) )
 ###################################################################
 
 ############################add friend#############################
-"""
-Views
-=====
+from exception import AlreadyExistsError
+from models import Friend, Follow, FriendshipRequest
+from django.conf import settings
+try:
+    from django.contrib.auth import get_user_model
+    user_model = get_user_model()
+except ImportError:
+    from django.contrib.auth.models import User
+    user_model = User
 
-.. _class-based-views:
-
-Class Based Views
------------------
-
-All the views are implemented as
-`classes <https://docs.djangoproject.com/en/dev/topics/class-based-views/>`_
-but :ref:`view functions <view-functions>` are also provided.
-
-.. autoclass:: BaseActionView
-    :members:
-
-.. autoclass:: FriendshipAcceptView
-
-.. autoclass:: UserBlockView
-
-.. autoclass:: FriendshipCancelView
-
-.. autoclass:: FriendshipDeclineView
-
-.. autoclass:: FriendshipDeleteView
-
-.. autoclass:: FriendshipRequestView
-
-.. autoclass:: UserUnblockView
+get_friendship_context_object_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_NAME', 'user')
+get_friendship_context_object_list_name = lambda: getattr(settings, 'FRIENDSHIP_CONTEXT_OBJECT_LIST_NAME', 'users')
 
 
-.. _view-functions:
+##view friends
 
-View Functions
---------------
+def view_friends(request, username):
+    """ View the friends of a user """
+    user = get_object_or_404(user_model, username=username)
+    qs = Friend.objects.select_related("UserProfile").filter(to_user=user)
+    friends = [u.from_user for u in qs]
+    return render_to_response( 'view_friends.html', {'friends': friends})
 
-.. tip::
 
-    If you want to customize the views provided, check out
-    :ref:`class-based-views` first.
-
-.. autofunction:: friendship_request
-
-.. autofunction:: friendship_accept
-
-.. autofunction:: friendship_decline
-
-.. autofunction:: friendship_cancel
-
-.. autofunction:: friendship_delete
-
-.. autofunction:: user_block
-
-.. autofunction:: user_unblock
-"""
-
-from django.http import HttpResponseBadRequest, Http404
-from django.db import transaction
-from django.views.generic.base import RedirectView
-from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext
-from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from models import FriendshipRequest, Friendship
-from app_settings import REDIRECT_FALLBACK_TO_PROFILE
 
 
-class BaseActionView(RedirectView):
-    """
-    Base class for action views.
-    """
-
-    http_method_names = ['get', 'post']
-    permanent = False
-
-    def action(request, user, *args, **kwargs):
-        raise NotImplementedError("Subclasses must implement action()")
-
-    def get(self, request, username, *args, **kwargs):
-        if request.user.username == username:
-            return HttpResponseBadRequest(
-                ugettext(u'You can\'t befriend yourself.'),
-            )
-        user = get_object_or_404(User, username=username)
-        self.action(request, user, *args, **kwargs)
-        self.set_url(request, **kwargs)
-        return super(BaseActionView, self).get(request, **kwargs)
-
-    def set_url(self, request, **kwargs):
-
-        #return render_to_response("home.html",{'kwargs':kwargs})
-        """
-        Set the ``url`` attribute so that it can be used when
-        :py:meth:`~django.views.generic.base.RedirectView.get_redirect_url` is
-        called.
-
-        ``url`` is determined using the following methods, in order:
-
-        - It can be set in the urlconf using ``redirect_to`` keyword argument.
-        - If ``redirect_to_param`` keyword argument is set in urlconf, the
-          request parameter with that name will be used. In this case the
-          request parameter **must** be provided in runtime.
-        - If the request has ``redirect_to`` to parameter is present, its
-          value will be used.
-        - If ``REDIRECT_FALLBACK_TO_PROFILE`` setting is ``True``, current
-          user's profile URL will be used.
-        - ``HTTP_REFERER`` header's value will be used if exists.
-        - If all else fail, ``'/'`` will be used.
-        """
-        if 'redirect_to' in kwargs:
-            self.url = kwargs['redirect_to']
-        elif 'redirect_to_param' in kwargs and \
-             kwargs['redirect_to_param'] in request.REQUEST:
-            self.url = request.REQUEST[kwargs['redirect_to_param']]
-        elif 'redirect_to' in request.REQUEST:
-            self.url = request.REQUEST['next']
-        elif REDIRECT_FALLBACK_TO_PROFILE:
-            self.url = request.user.get_profile().get_absolute_url()
-        else:
-            self.url = request.META.get('HTTP_REFERER', '/accounts/loggedin/')
-            #return render_to_response("friend/friendrequest_accepted.html")
-
-
-class FriendshipAcceptView(BaseActionView):
-    @transaction.commit_on_success
-    def accept_friendship(self, from_user, to_user):
-        get_object_or_404(
-            FriendshipRequest,
-            from_user=from_user,
-            to_user=to_user,
-        ).accept()
-
-    def action(self, request, user, **kwargs):
-        self.accept_friendship(user, request.user)
-        #return render_to_response("friend/friendrequest_accepted.html" , { 'to_user':user } )
-
-class FriendshipRequestView(FriendshipAcceptView):
-    @transaction.commit_on_success
-    def action(self, request, user, **kwargs):
-        if Friendship.objects.are_friends(request.user, user):
-            raise RuntimeError(
-                '%r and %r are already friends' % (request.user, user),
-            )
-        try:
-            # If there's a friendship request from the other user accept it.
-            self.accept_friendship(user, request.user)
-
-        except Http404:
-            request_message = request.REQUEST.get('message', u'Hi, add me as your friend')
-            # If we already have an active friendship request IntegrityError
-            # will be raised and the transaction will be rolled back.
-            FriendshipRequest.objects.create(from_user=request.user, to_user=user, message=request_message,)
-            #return render_to_response("friend/friendrequest_sent.html" , {'to_user' : user } )
-
-
-class FriendshipDeclineView(BaseActionView):
-    def action(self, request, user, **kwargs):
-        get_object_or_404(FriendshipRequest,
-                          from_user=user,
-                          to_user=request.user).decline()
-
-
-class FriendshipCancelView(BaseActionView):
-    def action(self, request, user, **kwargs):
-        get_object_or_404(FriendshipRequest,
-                          from_user=request.user,
-                          to_user=user).cancel()
-
-
-class FriendshipDeleteView(BaseActionView):
-    def action(self, request, user, **kwargs):
-        Friendship.objects.unfriend(request.user, user)
-
-
-class UserBlockView(BaseActionView):
-    def action(self, request, user, **kwargs):
-        request.user.user_blocks.blocks.add(user)
-
-
-class UserUnblockView(BaseActionView):
-    def action(self, request, user, **kwargs):
-        request.user.user_blocks.blocks.remove(user)
-
-
-friendship_request = login_required(FriendshipRequestView.as_view())
-friendship_accept = login_required(FriendshipAcceptView.as_view())
-friendship_decline = login_required(FriendshipDeclineView.as_view())
-friendship_cancel = login_required(FriendshipCancelView.as_view())
-friendship_delete = login_required(FriendshipDeleteView.as_view())
-user_block = login_required(UserBlockView.as_view())
-user_unblock = login_required(UserUnblockView.as_view())
-
-
-#for friends Snippet
-#test
-
+# add friends
 @login_required
-def friend_list(request):
-    return render_to_response("friend/add_new.html")
+def friendship_add_friend(request, to_username):
+    """ Create a FriendshipRequest """
+    ctx = {'to_username': to_username}
+    args = {}
+    args.update(csrf(request))
+
+    if request.method == 'POST':
+        to_user = user_model.objects.get(username=to_username)
+        from_user = request.user
+        try:
+            Friend.objects.add_friend(from_user, to_user)
+        except AlreadyExistsError as e:
+            ctx['errors'] = ["%s" % e]
+
+        else:
+            template = '/profiles/'+str(to_user.id)
+            return HttpResponseRedirect(template)
+    to_user = User.objects.get(username=to_username)
+    template = '/profiles/'+str(to_user.id)
+    return HttpResponseRedirect(template, ctx)
+
+# all the request list[ throws list of all friend request ]
+@login_required
+def friendship_request_list(request, template_name='/friend/requests_list.html'):
+    """ View unread and read friendship requests """
+    # friendship_requests = Friend.objects.requests(request.user)
+    friendship_requests = FriendshipRequest.objects.filter(rejected__isnull=True)
+
+    return render(request, template_name, {'requests': friendship_requests})
+
+# user friend requests
+@login_required
+def friend_requests(request):
+    self = request.user
+    return render(request,'friendship/template_ags/friend_requests.html', {'self':self})
+
+#accept friend request
+@login_required
+def friendship_accept(request, friendship_request_id):
+    """ Accept a friendship request """
+    #if request.method == 'POST':
+    #id1 = get_object_or_404(request.user.friendship_requests_sent,id=friendship_request_id)
+    f_request = FriendshipRequest.objects.get(from_user=friendship_request_id, to_user = request.user)
+    from_user = request.user
+    f_request.accept()
+    return render (request , 'reload_page.html')
+    #return render(request,'friendship/template_ags/friend_requests.html', {'from_user':from_user})
+
+#decline friend request
+@login_required
+def friendship_reject(request, friendship_request_id):
+    """ Reject a friendship request """
+    #if request.method == 'POST':
+    #f_request = get_object_or_404(request.user.friendship_requests_received,id=friendship_request_id)
+    f_request = FriendshipRequest.objects.get(from_user=friendship_request_id, to_user = request.user)
+    from_user = request.user
+    f_request.reject()
+    return render(request , 'reload_page.html')
+    #return render(request,'friendship/template_ags/friend_requests.html', {'from_user':from_user})
+
+#friendship Revoke
+def friendship_revoke(request , friendship_request_id):
+    """revoke friend request"""
+    FriendshipRequest.objects.filter(from_user=request.user,to_user=friendship_request_id).delete()
+    url = '/profiles/'+str(request.user.id)+'/'
+    return HttpResponseRedirect(url)
+
+#unfriend
+def friendship_unfriend(request , friendship_request_id):
+    Friend.objects.get(to_user_id=request.user.id, from_user_id=friendship_request_id).delete()
+    Friend.objects.get(from_user_id=request.user.id, to_user_id=friendship_request_id).delete()
+    template = '/view/friends/'+str(request.user.email)
+    return render(request , 'reload_page.html')
+    #return HttpResponseRedirect(template)
 
 
-def fr(
-                username=None,
-                paginate_by=None,
-                page=None,
-                allow_empty=True,
-                template_name='friend/friends_list.html',
-                extra_context=None,
-                template_object_name='friends'):
-    if username:
-        user = get_object_or_404(User, username=username)
-    else:
-        user = request.user
-    friends = Friendship.objects.friends_of(user)
-    if extra_context is None:
-        extra_context = {}
-    incoming_requests = FriendshipRequest.objects.filter( to_user=request.user,accepted=False)
-    outgoing_requests = FriendshipRequest.objects.filter( from_user=request.user,accepted=False)
-    extra_context['sender_user'] = request.user
-    extra_context['target_user'] = user
-    extra_context['friendship_requests'] = {'incoming':incoming_requests,'outgoing':outgoing_requests}
-    extra_context['user_blocks'] =request.user.user_blocks.blocks.all()
-    return object_list(request,
-                       queryset=friends,
-                       paginate_by=paginate_by,
-                       page=page,
-                       allow_empty=allow_empty,
-                       template_name=template_name,
-                       extra_context=extra_context,
-                       template_object_name=template_object_name)
+#friendship clear notification
+from django.db.models import F
 
+def friendship_clearnotify(request, username):
+    self = request.user.id
+    to_user = User.objects.values_list('id', flat=True).get(email = username)
+    this_update= Friend.objects.get(from_user_id = self , to_user_id = to_user)
+    this_update.notify = F('notify')-1
+    this_update.save()
+    return render(request , 'reload_page.html')
 
-
-
-def test(request):
-    return render_to_response('profile.html')
+#load friends friend
+def friendship_friends_friend(request , friendship_request_id):
+    user = get_object_or_404(user_model, id=friendship_request_id)
+    friends = Friend.objects.friends(user)
+    profile = UserProfile.objects.select_related("user").get(user__id = request.user.id)
+    user1 = profile.user.id
+    for i in friends:
+        to_user = i.id
+        i.user2 = str(user1)+"|"+str(to_user)
+    return render_to_response('view_friend_friends.html', {'friends': friends, 'profile':profile})
 
 
 
@@ -628,4 +543,82 @@ def generes_return(request):
 #    generes1 = Generes.objects.filter(user=request.user)
 #    return render (request, 'generes_display.html', {'music_generes' : generes1})
 
+############################
+@login_required
+def testtmp(request):
+    return render_to_response("Band_page.html")
 
+@login_required
+def test(request , user_id = 40):
+    test= UserProfile.objects.select_related("user").get(user = user_id)
+    follow = userFollowActivity.objects.get(user=user_id)
+    c={}
+    c.update(csrf(request))
+
+    return render_to_response('test.html',  {'form':test , 'follow':follow}, context_instance=RequestContext(request))
+
+###############Views for Band Pages##############################
+from django.contrib.formtools.wizard.views import SessionWizardView
+from django.contrib.formtools.wizard.storage import get_storage
+from django.contrib.formtools.wizard.forms import ManagementForm
+from django.core.files.storage import FileSystemStorage
+import os
+from forms import bandPageForm1, bandPageForm2
+from django.forms.models import inlineformset_factory
+from django.forms.formsets import formset_factory
+from django.forms.models import modelformset_factory
+
+import logging
+logr = logging.getLogger(__name__)
+
+
+UserFormSet = modelformset_factory(bandMembers,
+                                   form=bandPageForm2,
+                                   extra=5,
+                                   max_num=10,
+                                   can_delete=True)
+
+form_list = [
+("uc", bandPageForm1),
+("u", UserFormSet),
+]
+
+TEMPLATES = {"0": "editbandpage_pk.html",
+             "1": "editbandpage2_pk.html",}
+
+
+
+
+
+
+class createBandPage(SessionWizardView):
+    file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'media'))
+    template_name = 'editbandpage_pk.html'
+    def get_form(self, step=None, data=None, files=None):
+        form = super(createBandPage, self).get_form(step, data, files)
+
+        # Determine the step if not given
+        if step is None:
+            step = self.steps.current
+
+        if step == '1':
+         # Return number of forms for formset requested
+         # in previous step.
+            userchoice = self.get_cleaned_data_for_step('0')
+            num_users = userchoice['memberCount']
+            UserFormSet.extra = num_users
+            return UserFormSet
+        return form
+
+
+
+    def get_template_names(self):
+        return [TEMPLATES[self.steps.current]]
+
+    def done(self, form_list, **kwargs):
+        form_data = process_form_data(form_list)
+        return render_to_response("bandpage_pk.html" , {'form_data':form_data})
+
+def process_form_data(form_list):
+    form_data = [form.cleaned_data for form in form_list]
+    return form_data

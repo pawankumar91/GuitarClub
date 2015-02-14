@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+  width : screen.Width+"px";
+min-width : 1345px;
+height:100%;
+  background-repeat: no-repeat;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+   overflow-x: auto;
+    overflow-y: auto;
+}
+
+/*middle container*/
+
+.middle-container {
+	width: 100%
+	height: auto;
+	margin:0 auto;
+}
+
+.profile{
+    float:left;
+    background:#394264;
+    width:19%;
+    height:480px;
+    margin-top:10px;
+    margin-left:10px;
+    padding-bottom: 10px;
+    position:relative;
+    border-radius:3px;
+}
+.profile-left{
+    width:100%;
+}
+.center-container{
+    position:relative;
+	width:55%;
+    float:left;
+    border-radius:3%;
+    left:5px;
+}
+#content{
+    position:relative;
+    top:10px;
+    background-color:#ececec;
+    overflow: hidden;
+    border-radius:3px;
+    width:100%;
+}
+/*middle container ends*/

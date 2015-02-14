@@ -35,14 +35,16 @@ EMAIL_USE_TLS = True
 # Application definition
 
 INSTALLED_APPS = (
+    'guitarclubapp',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.formtools',
     #'guitarclub.guitarclubapp',
-    'guitarclubapp',
+
     #'django-friendship/friendship',
 
 )
@@ -60,12 +62,15 @@ TEMPLATE_DIRS = (
     '/home/pakumar1/guitarclub/templates/',
     '/home/pakumar1/guitarclub/templates/profiles/',
     '/home/pakumar1/guitarclub/templates/registration/',
-    '/home/pakumar1/guitarclub/templates/search/'
+    '/home/pakumar1/guitarclub/templates/search/',
+    '/home/pakumar1/guitarclub/templates/friendship/friend/',
+    '/home/pakumar1/guitarclub/templates/Band/',
 )
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader'
+    'django.template.loaders.app_directories.Loader',
+
 )
 
 ROOT_URLCONF = 'guitarclub.urls'

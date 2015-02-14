@@ -1,0 +1,13 @@
+{% load %}
+
+{% load friendship_tags %}
+
+<ul>
+{% for friend_request in a|friend_requests:from_user %}
+<li>{{ friend_request.first_name }} {{ friend_request.last_name}} wants to be friends with you.</li>
+<a href = '/friend/accept/{{friend_request.pk}}/' > Accept </a> &nbsp&nbsp<a href = '/friend/reject/{{friend_request.pk}}' > Decline </a>
+{% endfor %}
+
+<li><a href = "/view/friends/{{from_user}}"> View Friends</a></li>
+
+</ul>

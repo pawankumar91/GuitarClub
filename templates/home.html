@@ -1,11 +1,50 @@
-<html>Home Page
+{% extends "base.html" %}
+{% block html %}
+    <html>
+{% endblock %}
+{% block title %}
+    <title> Guitar Club </title>
+{% endblock %}
 
-<h2> Hi {{full_name}}, Welcome to GC!</h2>
+{% block meta %}
+        <meta charset="utf-8" />
+        <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
+        <meta name="robots" content="all">
+        <link href="/static/home.css" rel="stylesheet">
+        <script type="text/javascript" async src="/static/home.js"></script>
+<script>
+$(document).ready(function(){
+    $("denotify").mouseover(function(){
+        $.post("/friend/clearnotify/");
+    });
+});
+</script>
 
-<a href = "/accounts/profile/">Edit Profile</a><br><br>
+{% endblock %}
+
+{% block body %}
+    <body>
+{% endblock %}
+
+{% block small_pic %}
+
+                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.profilePic.url  }}')"></div>
+{% endblock %}
+{% block content %}
+             <!-- MIDDLE-CONTAINER -->
+            <div class="middle-container">
+
+                <div class="profile"> <!-- PROFILE (MIDDLE-CONTAINER) -->
+                    <div class="profile-left">
 
 
-<a href = "/accounts/logout/">click to logout </a>
 
-{{kwargs}}
-</html>
+                    </div>
+                </div><!-- end profile-->
+                 <div class="center-container">
+                     <div id="content">
+
+                     </div>
+                </div>
+                </div><!-- end middle-container -->
+{% endblock %}

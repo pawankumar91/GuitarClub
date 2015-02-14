@@ -4,8 +4,13 @@ from django.contrib.auth import views as auth_views
 
 from django.conf.urls import patterns, url
 
+from guitarclubapp.forms import bandPageForm1 , bandPageForm2
+from guitarclubapp.views import createBandPage
+
 from django.contrib import admin
 admin.autodiscover()
+
+
 
 urlpatterns = patterns('',
     # Examples:
@@ -71,41 +76,34 @@ url(r'^accounts/profile/$', 'guitarclubapp.views.edit_profile'),
 url(r'^search/$', 'guitarclubapp.views.search'),
 
 #view profile page
-url(r'^profiles/(?P<user_id>\d+)/$', 'guitarclubapp.views.viewprofile'),
+url(r'^profiles/(?P<user_id>\d+)/$', 'guitarclubapp.views.viewprofile' , name = 'view_profiles'),
 
-url(r'^friend_list/$', 'guitarclubapp.views.friend_list'),
+#url(r'^friend_list/$', 'guitarclubapp.views.friend_list'),
+
+########################################################Friends###########################################
+
+url(r'^friend_requests/$', 'guitarclubapp.views.friend_requests', name = 'friend_requests'),
+url(r'^friend/add/(?P<to_username>[\+\w\.@-_]+)/$','guitarclubapp.views.friendship_add_friend'),
+url(r'^friend/requests/$','guitarclubapp.views.friendship_request_list'),
+url(r'^view/friends/(?P<username>[\+\w\.@-_]+)/$','guitarclubapp.views.view_friends'),
+url(r'^friend/reject/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_reject',name='friendship_reject'),
+url(r'^friend/revoke/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_revoke',name='friendship_revoke'),
+url(r'^friend/clearnotify/(?P<username>[\+\w\.@-_]+)/$','guitarclubapp.views.friendship_clearnotify',name='friendship_clearnotify'),
+url(r'^friend/unfriend/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_unfriend',name='friendship_unfriend'),
+url(r'^find/friends/friend/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_friends_friend',name='friendship_friends_friend'),
 
 
-
-    url(r'^add/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.friendship_request',
-        name='friendship_request'),
-    url(r'^accept/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.friendship_accept',
-        name='friendship_accept'),
-    url(r'^decline/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.friendship_decline',
-        name='friendship_decline'),
-    url(r'^cancel/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.friendship_cancel',
-        name='friendship_cancel'),
-    url(r'^delete/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.friendship_delete',
-        name='friendship_delete'),
-    url(r'^block/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.user_block',
-        name='user_block'),
-    url(r'^unblock/(?P<username>[\+\w\.@-_]+)/$',
-        'guitarclubapp.views.user_unblock',
-        name='user_unblock'),
-
+##test only
+url(r'^testprofiles/(?P<user_id>\d+)/$', 'guitarclubapp.views.test'),
 
 
 #Generes Popup URLs
         url(r'^accounts/profile_v3/generes/$', 'guitarclubapp.views.generes_view'),
         url(r'^accounts/profile_v3/$', 'guitarclubapp.views.generes_choose'),
         url(r'^accounts/profile_v3/generes/return/$', 'guitarclubapp.views.generes_return'),
-        url(r'^accounts/profile/music/$', 'guitarclubapp.views.display'),
+        #url(r'^accounts/profile/music/$', 'guitarclubapp.views.display'),
+
+
 
 
 
@@ -116,11 +114,19 @@ url(r'^friend_list/$', 'guitarclubapp.views.friend_list'),
 #testeditprofile
 url(r'^accounts/profile_v1/$', 'guitarclubapp.views.userFollow'),
 url(r'^accounts/profile_v2/$', 'guitarclubapp.views.multiChoice_v1'),
-url(r'^accounts/editprofile/$', 'guitarclubapp.views.editprofilepage'),
-
-
+#url(r'^accounts/editprofile/$', 'guitarclubapp.views.editprofilepage'),
+url(r'^accounts/bandpage/$', 'guitarclubapp.views.testtmp'),
 url(r'^test/$', 'guitarclubapp.views.test'),
 
+
+#testing create bandpage - pawan
+url(r'^band/edit/$', createBandPage.as_view([bandPageForm1 , bandPageForm2])),
+
+#url(r'^band/editx/$', 'guitarclubapp.views.bandstep1'),
+#url(r'^band/edit_step2/$', 'guitarclubapp.views.bandstep2'),
+
+    url(r'^friend/accept/(?P<friendship_request_id>\d+)/$',
+        'guitarclubapp.views.friendship_accept'),
 
     #url(r'^login/', 'guitarclubapp.views.login_view', name='login'),
 
