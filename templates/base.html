@@ -27,11 +27,11 @@
                     var textbx = document.getElementById("filterBasic-input");
                     var indexe = sel.selectedIndex;
                     if(indexe == 0) {
-                     $("#filterBasic-input").attr("placeholder", "Search Bands...");}
-                       if(indexe == 1) {
-                     $("#filterBasic-input").attr("placeholder", "Search Songs...");}
-					 if(indexe == 2) {
                      $("#filterBasic-input").attr("placeholder", "Search All...");}
+                       if(indexe == 1) {
+                     $("#filterBasic-input").attr("placeholder", "Search Profiles...");}
+					 if(indexe == 2) {
+                     $("#filterBasic-input").attr("placeholder", "Search Bands...");}
                     }
                 </script>
 
@@ -45,18 +45,28 @@
                 <div class='logo'>
                     <a href="/accounts/loggedin/"><img alt="Logo" src="/static/Logo.jpg "></a>
                 </div>
+
                 <div class="search_bar">
-                        <li class = "togglemenu icon1 fontawesome-list scnd-font-color1" >
-                         <select id="selection" class="search_select" onchange="changeplh()">
-							 <option>Band</option>
-							 <option>Songs</option>
-							 <option>All</option>
+ <!--                       <li class = "togglemenu icon1 fontawesome-list scnd-font-color1" >
+                          <select name="my_selection" id="selection" class="search_select" onchange="changeplh()" form="selection_form">
+							 <option value="All">All</option>
+							 <option value="Profile">Profile</option>
+							 <option value="Band">Band</option>
 						</select>
-			            </li>
+			            </li>-->
                         <li id="box">
                            <form action="/search/" method = "get">
                                     <input type="submit" value="" />
                                     <input id="filterBasic-input"  name="q" input type="search" placeholder="Search..." />
+                                    <!--vivek-->
+                        <li class = "togglemenu icon1 fontawesome-list scnd-font-color1" >
+                                    <select name="my_selection" id="selection" class="search_select" onchange="changeplh()">
+                                        <option value="All">All</option>
+							            <option value="Profile">Profile</option>
+							            <option value="Band">Band</option>
+                                    </select>
+                        </li>
+                                    <!--vivek-->
                            </form>
                         </li>
                 </div>
@@ -78,7 +88,7 @@
                                 {% for friend_request in a|friend_requests:self.user %}
                                 <li id="hoverable">
                                 <font>{{ friend_request.first_name }} {{ friend_request.last_name}} wants to be friends with you</font>
-                                <a class=" accept icon" href = '/friend/accept/{{friend_request.pk}}/'><i class="fa fa-check"></i> </a>
+                                <a class=" accept icon" href = '/friend/accept/{{friend_request.pk}}/'><i class="fa fa-check-square-o"></i> </a>
                                 <a class="decline icon" href = '/friend/reject/{{friend_request.pk}}'><i class="fa fa-close"></i></a>
                                 </li>
                                 {% endfor %}
@@ -93,7 +103,7 @@
                                 </li>
                                  {% endfor %}
 
-                                <li id="hoverable" class="view-friends" ><a href = "/view/friends/{{self}}">View Friends</a></li>
+                                <li id="hoverable" class="view-friends" onclick="location.href='/view/friends/{{self}}';"><a href = "/view/friends/{{self}}">View Friends</a></li>
     			        </ul>
                     </li>
                     <li>
@@ -103,26 +113,33 @@
                </div>
                <div class="profile-menu">
 
-                   <a href="/accounts/profile/">{% if form.user.first_name %}
-                                                            {{form.user.first_name}} {{form.user.last_name}}
+                   <a href="/accounts/profile/">{% if self.user.first_name %}
+                                                            {{self.user.first_name}} {{self.user.last_name}}
                                                 {% else %}
                                                             {{first_name}} {{last_name}}
                                                 {% endif %}</a>
-                   {% block small_pic %} {% endblock %}
-                  <li class = " dropdown entypo-down-open icon2" >
+                    {% if self.profilePic.url %}
+                        <div class="profile-picture small-profile-picture" style="background-image:url('{{self.profilePic.url}}')"></div>
+                    {% else %}
+                        <div class="profile-picture small-profile-picture" style="background-image:url('{{self.instance.profilePic.url}}')"></div>
+                    {% endif %}
+
+                  <li class = "dropdown entypo-down-open icon2" >
                                 <ul id="level-onee" class = "pull-right" >
                                     <li class="spacer" ></li>
-                                    <li class="no-spacer"><a href="#">Manage Band</a></li>
-                                    <li class="no-spacer"><a href="/accounts/profile/">Profile</a></li>
-                                    <li class="no-spacer"><a href="#">Settings & Privacy</a></li>
-                                    <li class="no-spacer"><a href="/accounts/logout/">Logout</a></li>
+                                    <li class="no-spacer icon3"><a href="/band/greenday/41">Manage Band <i class="fa fa-music pull-right right-icons"></i></a></li>
+                                    <li class="no-spacer icon3"><a href="/accounts/profile/">Profile <i class="fa fa-street-view pull-right right-icons"></i></a></li>
+                                    <li class="no-spacer icon3"><a href="/accounts/logout/">Settings & Privacy <i class="fa fa-gears pull-right right-icons"></i></a></li>
+                                    <li class="no-spacer icon3"><a href="/accounts/logout/">Logout <i class="fa fa-power-off pull-right right-icons"></i></a></li>
         			            </ul>
     			 </li>
 
                </div>
-        </header
+        </header>
 {% block content %} {% endblock %}
 
+
+</div> <!-- end main-container -->
 <div class = "footer">
             <h3 class="float">&copy; 2014-15 The Guitar Club. All rights reserved.</h3>
             <h5>Contact US</h5>
@@ -140,7 +157,5 @@
                 </ul>
             </div>
         </div>
-
-</div> <!-- end main-container -->
 </body>
 </html>

@@ -1,0 +1,180 @@
+body {
+  margin: 0;
+  width : screen.Width+"px";
+min-width : 1345px;
+height:100%;
+  background-repeat: no-repeat;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+   overflow-x: auto;
+    overflow-y: auto;
+}
+/*middle container*/
+
+.middle-container {
+	width: 100%
+	height: auto;
+	margin:0 auto;
+}
+.profile{
+    float:left;
+    background:#394264;
+    width:19%;
+    height:480px;
+    margin-top:10px;
+    margin-left:10px;
+    padding-bottom: 10px;
+    position:relative;
+    border-radius:3px;
+}
+.profile-left{
+    width:100%;
+}
+.search_results{
+    position:relative;
+	width:55%;
+float:left;
+    border-radius:3%;
+}
+.result{
+    float:left;
+    width:100%;
+    position:relative;
+    left:1%;
+}
+#userresults{
+    position:relative;
+    top:10px;
+    background-color:#ececec;
+    overflow: hidden;
+    border-radius:3px;
+    width:100%;
+    height:100px;
+}
+#userresults h4{
+    left:5px;
+    position:relative;
+}
+.user-pic {
+	border-radius: 100%;
+	overflow: hidden;
+	-webkit-box-sizing: content-box;
+  	-moz-box-sizing: content-box;
+  	box-sizing: content-box;
+		border: 5px solid #50597b;
+		width: 80px;
+		height: 80px;
+		position:relative;
+		float:left;
+		top:5px;
+		left:5px;
+	}
+.userdetails{
+    float:left;
+    display:inline;
+	color:#000000;
+	width:40%;
+	left:2%;
+	position:relative;
+}
+.userdetails a{
+color:#22313F;
+font:16px;
+font-weight:bold;
+position:relative;
+}
+.userdetails p{
+    display:inline;
+    color:#22313F;
+	position:relative;
+	font-size:14px;
+}
+.view_friends{
+    float:right;
+    right:5px;
+    position:relative;
+    color: #fff !important;
+    word-spacing: 0.25em;
+   font-family: 'Open Sans', sans-serif;
+   border: none;
+    line-height: 23px;
+    padding: 10px 11px 9px;
+    text-align: center;
+    display: inline-block;
+    margin-top: 5px;
+    margin-bottom: 18px;
+    text-decoration: none;
+    	-webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background: #1ABC9C;
+       padding: 6px 12px 5px;
+    text-shadow: none;
+}
+.view_friends  a{
+    font-size: 12px;
+    color: #fff;
+}
+.view_friends:hover{
+background: #019875;
+}
+.view_friends a:hover{
+text-decoration:none;
+}
+.view_friends a:link
+{
+   color: #fff;
+   text-decoration: none;
+}
+.view_friends a:visited
+{
+   color: #fff;
+   text-decoration: none;
+}
+.view_friends a:active
+{
+   color: #fff;
+   text-decoration: none;
+}
+/*middle container ends*/
+/* view friends friends*/
+.friend_tag{
+    top:7px;
+float:right;
+right:7px;
+position:relative;
+}
+.add_friend_no_hover{
+position:relative;
+background-color: #1ABC9C;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+     width:150px;
+    height:30px;
+     font-family: 'Open Sans', sans-serif;
+}
+.add_friend {
+position:relative;
+background-color: #1ABC9C;
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    width:150px;
+    height:30px;
+    font-family: 'Open Sans', sans-serif;
+}
+.add_friend:hover{
+    background-color: #019875;
+
+}
+/*view friends friends end*/

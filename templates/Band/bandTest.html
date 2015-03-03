@@ -1,0 +1,7 @@
+{% load %}
+{% load staticfiles %}
+
+<form action = "/band/upload/audio/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+    {{form.as_ul}}
+    <input type="submit" value=" Submit "/>
+</form>

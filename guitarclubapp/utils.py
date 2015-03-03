@@ -63,3 +63,14 @@ def toggle_link(object):
 def follow_url(user, obj):
     """ Returns the right follow/unfollow url """
     return toggle_link(obj)
+
+
+#############################FOR BAND AUDIO UPLOAD #######################################################
+import os
+# from django's docs
+def handle_uploaded_file(f):
+    ext = os.path.splitext(f.name)[1]
+    destination = open('media/band/audio/name%s'%(ext), 'wb+')
+    for chunk in f.chunks():
+        destination.write(chunk)
+    destination.close()

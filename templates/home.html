@@ -12,6 +12,8 @@
         <meta name="robots" content="all">
         <link href="/static/home.css" rel="stylesheet">
         <script type="text/javascript" async src="/static/home.js"></script>
+        <meta name="viewport" content="width=device-width">
+        <meta name=“viewport” content="initial-scale=1.0">
 <script>
 $(document).ready(function(){
     $("denotify").mouseover(function(){
@@ -24,11 +26,6 @@ $(document).ready(function(){
 
 {% block body %}
     <body>
-{% endblock %}
-
-{% block small_pic %}
-
-                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.profilePic.url  }}')"></div>
 {% endblock %}
 {% block content %}
              <!-- MIDDLE-CONTAINER -->

@@ -3,6 +3,7 @@
     <html>
         {% load %}
     {% load friendship_tags %}
+    {% load  bandfollow_tags %}
 {% endblock %}
 {% block title %}
     <title> Guitar Club </title>
@@ -12,18 +13,16 @@
     <meta charset="utf-8" />
         <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
         <meta name="robots" content="all">
+        <link href="/static/viewfriends.css" rel="stylesheet">
         <link href="/static/searchpage.css" rel="stylesheet">
-        <script type="text/javascript" async src="/static/searchpage.js"></script>
+        <script type="text/javascript" async src="/static/viewfriends.js"></script>
 {% endblock %}
 
 {% block body %}
     <body>
 {% endblock %}
 
-{% block small_pic %}
-                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.profilePic.url  }}')">
-                        </div>
-{% endblock %}
+
 {% block content %}
                           <!-- MIDDLE-CONTAINER -->
             <div class="middle-container">
@@ -32,33 +31,89 @@
 
                     </div>
                 </div>
-
-
-
                 <div class="search_results">
                     <div class="result">
-                      {% for i in pp %}
-
+                        <div>
+                        <!--{{my_selection}}
+                        {{q}}-->
+                        </div>
+                      {% if not bands and pp %}
+                      {% for i in pp%}
                             <div id="userresults">
                                 <div class="user-pic clear">
                                     <img width="80px"alt="{{first_name}} {{last_name}}" src="{{i.profilePic.url}}">
                                 </div>
                                 <div class="userdetails">
                                     <a href = "/profiles/{{i.user_id}}/">{{i.user.first_name}} {{i.user.last_name}} </a><br>
-                                    <p>{{i.currentPlace}}</p><br><br><br><br>
-
-
+                                    <p>{{i.currentPlace}}<br></p>
+                                    {% autoescape off %}
+                                        {{a|mutual_friends_count:i.user2}}{% csrf_token %} {% endautoescape %} Mutual Friend(s)
+                                        <!--{{mf}}-->
+                                </div>
+                                <div class="friend_tag">
                                     {% autoescape off %}
                                     {{a|check_friendship:i.user2}}{% csrf_token %} {% endautoescape %}</form>
-
                                 </div>
-
                             </div>
-
                             <div id="space">
-                                <p></p>
+                                <p>asdf</p>
                             </div>
                       {%endfor %}
+                      {% elif not pp and bands%}
+                        {% for i in bands %}
+                        <div>
+                            {{i.bandName}}
+                             <div class="friend_tag">
+
+                                    {% autoescape off %}
+                                    {{a|check_follow:i.fol}}{% csrf_token %} {% endautoescape %}</form>
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                        {% elif bands and pp %}
+                            {% for i in pp %}
+                                <div id="userresults">
+                                <div class="user-pic clear">
+                                    <img width="80px"alt="{{first_name}} {{last_name}}" src="{{i.profilePic.url}}">
+                                </div>
+                                <div class="userdetails">
+                                    <a href = "/profiles/{{i.user_id}}/">{{i.user.first_name}} {{i.user.last_name}} </a><br>
+                                    <p>{{i.currentPlace}}</p>
+                                </div>
+                                <div class="friend_tag">
+                                    {% autoescape off %}
+                                    {{a|check_friendship:i.user2}}{% csrf_token %} {% endautoescape %}</form>
+                                </div>
+                                <div class="request_sent">
+                            {% autoescape off %}
+                            {{a|mutual_friends_count:i.user2}}{% csrf_token %} {% endautoescape %} Mutual Friend(s)
+                            <!--{{mf}}-->
+                            </div>
+                                <!--template tag to render friends friend only if the users are friends !-->
+                                {% if a|check_friendship:i.user2|length ==  128 %}
+                                <a id="view_friends" href = "/find/friends/friend/{{i.user.id}}/">View {{i.user.first_name}}'s Friends</a>
+                                {% endif %}
+
+                            </div>
+                            {% endfor %}
+                            {% for i in bands %}
+                        <div>
+                            {{i.bandName}}
+
+
+                             <div class="friend_tag">
+
+                                    {% autoescape off %}
+                                    {{a|check_follow:i.fol}}{% csrf_token %} {% endautoescape %}</form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                      {% else %}
+                      <div id="userresults">
+                        <h4>Sorry :( No matches found </h4>
+                      </div>
+                      {% endif %}
                     </div>
                 </div><!-- end search results-->
                 </div><!-- end middle-container -->

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django import forms
+
 #import signals
 
 
@@ -548,10 +549,9 @@ class bandPage(models.Model):
     bandId = models.AutoField(primary_key=True)
     user = models.ForeignKey(User)
     bandName = models.CharField(max_length=50, blank=False)
-    bandLogo = models.FileField(upload_to='media/profile/',default='media/profile/banners-analysis-sketch.jpg',null=True)
-    bandCover = models.FileField(upload_to='media/profile/',default='media/profile/banners-analysis-sketch.jpg',null=True)
+    bandLogo = models.FileField(upload_to='media/band/',default='media/band/banners-analysis-sketch.jpg',null=True)
+    bandCover = models.FileField(upload_to='media/band/',default='media/band/banners-analysis-sketch.jpg',null=True)
     doc = models.DateField(blank=True, null = True)
-    memberCount = models.IntegerField(default=1)
     genres = models.TextField(max_length=150, null=False, blank=False)
 
 
@@ -559,9 +559,55 @@ class bandPage(models.Model):
         verbose_name_plural=u'BandPages'
 
 
+#band page - settings
+#[profanity  filter , admins , age filter, who can view ur page(friends, only you, all) ]
+
+class bandSettings(models.Model):
+    ageChoice = ( ('13','Above 13') , ('15','Above 15'), ('17','Above 17'), ('18','Above 18'), ('21','Above 21'))
+    pageChoice = ( ('0','Only Me') , ('1','Only Friends'), ('2','Anyone'))
+
+    band = models.ForeignKey(bandPage)
+    user = models.ForeignKey(User)
+    profanity_words = models.TextField( max_length=150, null=True, blank=True)
+    age_filter = models.CharField(max_length=10,choices=ageChoice, default = "18")
+    wcvp=models.CharField( max_length=10 , choices=pageChoice , default = "2")
+    remove = models.IntegerField(default = 0 , blank = False , null = True)
+
+
+#band members and roles
 class bandMembers(models.Model):
+    accessChoice = ( ('0','Admin') , ('1','Editor'), ('2','Analyst'), ('3','Moderator'))
+
     user=models.ForeignKey(User)
     band = models.ForeignKey(bandPage)
-    memberUserName = models.TextField(max_length=150, null=False, blank=False)
-    access = models.CharField(max_length=50, blank=False)
+    member_username = models.TextField(max_length=150, null=False, blank=False)
+    access = models.CharField(max_length=10,choices=accessChoice)
+    user_roles = models.TextField(max_length=150, null=False, blank=False)
+    other_roles = models.CharField(max_length = 50 , blank = True , null = True)
 
+    def __unicode__(self):
+        return self.member_username
+
+
+#bandpage Audio file upload
+class bandAudioFiles(models.Model):
+    user = models.ForeignKey(User)
+    band=models.ForeignKey(bandPage)
+    album = models.CharField(max_length = 100)
+    songname = models.CharField(max_length=100)
+    description = models.CharField(max_length = 250)
+    artists = models.TextField(max_length = 150, null = False , blank = False)
+    audiofile = models.FileField(upload_to='media/band/')
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+#band page follow
+class bandFollow(models.Model):
+    user = models.ForeignKey(User)
+    band=models.ForeignKey(bandPage)
+    followDate = models.DateTimeField(default=datetime.datetime.now())
+
+
+#test audio upload
+class audioupload(models.Model):
+    audiofile = models.FileField(upload_to='media/band/', blank=True)

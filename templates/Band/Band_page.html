@@ -1,52 +1,222 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-<head>
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400;300' rel='stylesheet' type='text/css'>
-        <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
-        <link href='http://fonts.googleapis.com/css?family=Old+Standard+TT' rel='stylesheet' type='text/css'>
-        <script async src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script type="text/javascript" async src="http://code.jquery.com/jquery-1.7.2.js"></script>
-        <script type='text/javascript' async src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
-        <link rel="stylesheet" href="http://s3.amazonaws.com/codecademy-content/courses/ltp/css/bootstrap.css">
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-        <script src="/static/bandpage.js"></script>
-        <link href="/static/bandpage.css" rel="stylesheet">
-</head>
-<body>
+{% extends "base.html" %}
+{% block html %}
+    <html>
+        {% load i18n %}
+        {% load %}
+    {% load  bandfollow_tags %}
+{% endblock %}
+{% block title %}
+    <title> Guitar Club </title>
+{% endblock %}
 
-        <div class = "nav_bar">
+{% block meta %}
+    <meta charset="utf-8" />
+    <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
+    <meta name="robots" content="all">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/bandpage.js"></script>
+    <link href="/static/bandpage.css" rel="stylesheet">
 
-        </div>
-        <div class = "pic-container">
-        <div class = "cover-image">
 
-        </div>
+    <script type="text/javascript">
+    $(document).ready(function() {
+    // Code adapted from http://djangosnippets.org/snippets/1389/
+    function updateElementIndex(el, prefix, ndx) {
+    var id_regex = new RegExp('(' + prefix + '-\\d+-)');
+    var replacement = prefix + '-' + ndx + '-';
+    if ($(el).attr("for")) $(el).attr("for", $(el).attr("for").replace(id_regex,
+    replacement));
+    if (el.id) el.id = el.id.replace(id_regex, replacement);
+    if (el.name) el.name = el.name.replace(id_regex, replacement);
+    }
+    function deleteForm(btn, prefix) {
+    var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    if (formCount > 1) {
+    // Delete the item/form
+    $(btn).parents('.item').remove();
+    var forms = $('.item'); // Get all the forms
+    // Update the total number of forms (1 less than before)
+    $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+    var i = 0;
+    // Go through the forms and set their indices, names and IDs
+    for (formCount = forms.length; i < formCount; i++) {
+    $(forms.get(i)).children().children().each(function() {
+    updateElementIndex(this, prefix, i);
+    });
+    }
+    } // End if
+    else {
+    alert("You have to enter at least one todo item!");
+    }
+    return false;
+    }
+    function addForm(btn, prefix) {
+    var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+    // You can only submit a maximum of 10 todo items
+    if (formCount < 100) {
+    // Clone a form (without event handlers) from the first form
+    var row = $(".item:first").clone(true).get(0);
+    // Insert it after the last form
+    $(row).removeAttr('id').hide().insertAfter(".item:last").slideDown(300);
+    // Remove the bits we don't want in the new row/form
+    // e.g. error messages
+    $(".errorlist", row).remove();
+    $(row).children().removeClass('error');
+    // Relabel/rename all the relevant bits
+    $(row).children().children().each(function() {
+    updateElementIndex(this, prefix, formCount);
+    if ( $(this).attr('type') == 'text' )
+    $(this).val('');
+    });
+    // Add an event handler for the delete item/form link
+    $(row).find('.delete').click(function() {
+    return deleteForm(this, prefix);
+    });
+    // Update the total form count
+    $('#id_' + prefix + '-TOTAL_FORMS').val(formCount + 1);
+    } // End if
+    else {
+    alert("Sorry, you can only enter a maximum of ten items.");
+    }
+    return false;
+    }
+    // Register the click event handlers
+    $("#add").click(function() {
+    return addForm(this, 'form');
+    });
+    $(".delete").click(function() {
+    return deleteForm(this, 'form');
+    });
+    });
+    </script>
+{% endblock %}
 
-        <div class="profile-picture big-profile-picture clear " style="background-image:url('{{ form.instance.profilePic.url  }}')">
-        </div>
+{% block body %}
+    <body>
+{% endblock %}
+
+{% block content %}
+
+            <div class = "big-image">
+            </div>
+            <div class = "clicked-image" style="background-image:url('{{bandpageform.instance.bandCover.url}}')"></div>
+
+            <div class = "big-image1">
+            </div>
+            <div class = "clicked-image1" style="background-image:url('{{bandpageform.instance.bandLogo.url}}')"></div>
+
+ <form action = "/band/summary/edit/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+    <div class = "pic-container">
+        <div class="back-pic2"><p id="upload-back-pic"><b>Add/Change Background Image     </b><i class="fa fa-camera"></i></p></div>
+        {{bandpageform.bandCover}}
+        <div class = "cover-image" style="background-image:url('{{bandpageform.instance.bandCover.url}}')"></div>
+
+        <div class="pc2"><p id="upload-pic"><b>Upload Pic     </b><i class="fa fa-camera"></i></p></div>
+        {{bandpageform.bandLogo}}
+        <div class = "profile-picture big-profile-picture clear " style="background-image:url('{{bandpageform.instance.bandLogo.url}}')"></div>
+        <div class="camera"><i class="fa fa-camera"></i></div>
+
         <div class="band-name">
-        <ul ><a id="font-color" href="#">GreenDay</a></ul>
+            <a id="font-color">
+            {{bandpageform.instance.bandName}}
+            </a>
+            <a id="Upload-video">
+            Upload Video
+            </a>
+            <a id="Upload-audio">
+            Upload Audio
+            </a>
         </div>
-        </div>
-        <div class = "tab-format">
+    </div>
+    <div class = "tab-format">
             <ul class="tabs">
-                <li class="selected"><a href="#view1">Features</a></li>
-                <li><a href="#view2">How to Use</a></li>
-                <li><a href="#view3">Source Code</a></li>
+                <li class="selected"><a href="#view1">About</a></li>
+                <li><a href="#view2">Settings</a></li>
+                <li><a href="#view3">Artists/Page Role</a></li>
+                <li><a href="#view4">Insights</a></li>
+                <li id="hide-me"><a href="#view5">Hide Me</a></li>
             </ul>
             <div class="tabcontents">
                 <div id="view1">
-                    content 1
+                        {{bandpageform.bandName}}<br>
+                        {{bandpageform.instance.genres}}<br>
+                        Band Formed :<br>
+                        {{bandpageform.doc}} <br>
+                        Artists:<br><br>
+                        {%if bandmembers %}
+                            {% for data in user_profile %}
+                                <p><img src = "{{data.profilePic.url}}" width = 100px > {{data.user.first_name}} {{data.user.last_name}}</p><br><br>
+                                {{data}}
+                            {% endfor %}
+                        {% else %}
+                            Artists/Roles Not Added yet, Please use the Artist/Page Roles tab to update...
+                        {% endif %}<br>
+                        <input type = "submit" value="Save Changes"/> </form>
                 </div>
                 <div id="view2">
-                    content 2
+                    <form action = "/band/settings/edit/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+                        <br><br>
+                        <pre>Age Restrictions : {{bandsettingsform.age_filter}}</pre>
+                        <pre>Age Restrictions : When you select an age restriction for your Page, people younger than this won't be able to see your Page or its content</pre>
+                        <br><pre>Word Moderations : {{bandsettingsform.profanity_words}}</pre>
+                        <pre>Block posts or comments containing the following words<br>To cut down on inappropriate content, you can add keywords you'd like to block from appearing on your Page. If one of these keywords is used in a post or comment, it will automatically be marked as spam. A Page admin can approve or delete the content. The limit is 10,000 characters. </pre>
+                        <br><pre>Page Visibility : {{bandsettingsform.wcvp}}</pre>
+                        <pre>Publishing your Page makes it visible to the public. If you check unpublish, it will only be seen by Page admins</pre><br>
+                        <input type = "submit" value="Save Changes"/>
+                    </form>
                 </div>
                 <div id="view3">
-                content 3
+                            <form action="/band/artist/pk/" method="POST">{% csrf_token %}
+                                {{ bandmembersform.management_form }}
+                                {% for form in bandmembersform.forms %}
+                                    <div class="item">
+                                        <div>Email: {{form.member_username}}</div>
+                                        <div>{{form.id}}</div>
+                                        <div>Access: {{form.access}}</div>
+                                        <div>user_roles: {{form.user_roles}}</div>
+                                        <div>Other Roles: {{form.other_roles}}</div>
+                                        <p style=""><a class="delete" href="#">Delete</a></p>
+                                    </div>
+                                {% endfor %}
+                                <div class="view3_submit">
+                                    <a id="add" href="#">Add another item</a>
+                                    <input type="submit" value=" Submit " />
+                                </div>
+                            </form>
+                </div>
+                <div id="view4">
+                    content 4
+                </div>
             </div>
-            </div>
-        </div>
 
+        </div>
+            <div id ="Upload-audio-pop" >
+                <form action = "/band/upload/audio/{{bandpageform.instance.bandId}}/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
+                {{form.as_ul}}
+                <input type="submit" value=" Submit "/>
+                </form>
+            </div>
+        <!--    <div>
+                <form action="/follow/{{bandpageform.instance.bandId}}/" method = "post">{% csrf_token %}
+                                    <input type="submit" value=" Follow "/>
+                </form>
+            </div>
+            <div>
+                <form action="/unfollow/{{bandpageform.instance.bandId}}/" method = "post">{% csrf_token %}
+                                    <input type="submit" value=" UnFollow "/>
+                </form>
+            </div>-->
+
+            <div class="friend_tag">
+
+                                    {% autoescape off %}
+                                    {{a|check_follow:fol}}{% csrf_token %} {% endautoescape %}</form>
+            </div>
 </body>
 </html>
+{% endblock %}
+
+
+
+
+

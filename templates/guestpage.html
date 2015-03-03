@@ -48,21 +48,23 @@
     </div>
     <div class="nav" id="divb">
           <ul class = "pull-left" id="left">
-              <li class = "pad"> <a href = "/home/">Logo The Guitar Club</a></li>
+              <li class = "pad"><img alt="Logo" src="/static/Logo.jpg "></li>
           </ul>
             <ul id="right">
                 <div class="right_a">
                     <form action="/accounts/auth/" method="post">{% csrf_token %}
+                    <div class="upper">
                         <input id ="Username" type="text" name="Username" placeholder="Email ID">&nbsp&nbsp&nbsp&nbsp&nbsp
                         <input id ="Password" type="password" name="Password" placeholder="Password">&nbsp&nbsp&nbsp&nbsp&nbsp
                         <INPUT id ="login" type="submit" value="Log In">&nbsp&nbsp&nbsp&nbsp&nbsp
-                    </form>
-                    <INPUT id ="signup" type="button" value="Sign Up" >
+                        <INPUT id ="signup" type="button" value="Sign Up" >
+                    </div>
+                    <div class=" lower">
+                        <label><input name="remember_me" type="checkbox" value="true" />{% csrf_token %}&nbspKeep me logged in</label>
+                        </form>
+                        <div id ="forgot"><a id ="forgot_p" href = "/accounts/password_reset/">Forgot Password ?</a></div>
+                     </div>
                 </div>
-                <div class="pull-right">
-                    <br><br><a id ="forgot_p" href = "/accounts/password_reset/">Forgot Password ?</a>
-                </div>
-
             </ul>
      </div>
      <div id="ribbon">
@@ -73,6 +75,16 @@
 		    <div class="right_corner"></div>
 	    </div>
     </div>
+
+      {% if error %}
+        {{error}}
+      {% endif %}
+
+     {% if form.errors %}
+        <p> {{form.errors}}</p>
+     {% endif %}
+
+
 
     </body>
 </html>

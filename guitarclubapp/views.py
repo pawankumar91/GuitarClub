@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.core.context_processors import csrf
@@ -10,18 +10,23 @@ from django.http import HttpResponseRedirect, QueryDict
 from django.template.response import TemplateResponse
 from django.utils.http import base36_to_int, is_safe_url, urlsafe_base64_decode, urlsafe_base64_encode
 
-from guitarclubapp.forms import *
+from forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.views.decorators.csrf import csrf_protect
 from django.template import RequestContext
+from django.core.urlresolvers import reverse_lazy
 # Create your views here.
 from django.contrib import auth
+from django.conf import settings
 
+from django.contrib.auth import views as auth_views
 from forms import formForm
-
+from forms import bandAudioFilesForm
 from models import Generes
 
+import json
+from json import dumps, loads, JSONEncoder, JSONDecoder
 import string
 
 # Avoid shadowing the login() and logout() views below.
@@ -53,18 +58,28 @@ from models import multiChoice
 
 from models import bandPage
 
+#check for loggedin users
+def check_loggedin(request):
+    if request.user.is_authenticated():
+        return redirect(reverse_lazy('loggedin'))
+    else:
+        return redirect(reverse_lazy('guestpage'))
+
 #guestpage
 def guestpage(request):
-    c={}
-    c.update(csrf(request))
+    if request.user.is_authenticated():
+        return redirect(reverse_lazy('loggedin'))
+    else:
+        c={}
+        c.update(csrf(request))
 
-    args = {}
-    args.update(csrf(request))
-
-    args['form'] = MyRegistrationForm()
+        args = {}
+        args.update(csrf(request))
 
 
-    return render_to_response('guestpage.html', args)
+        args['form'] = MyRegistrationForm()
+        #args['remform'] = LoginForm()
+        return render_to_response('guestpage.html', args)
     #return render_to_response('guestpage.html',c)
 
 
@@ -80,21 +95,40 @@ def auth_view(request):
     username = request.POST.get('Username', '')
     password = request.POST.get('Password', '')
     user = auth.authenticate(username=username, password=password)
+    remember_me = request.POST.getlist('remember_me')
+
     if user is not None and user.is_active:
         # Correct password, and the user is marked "active"
+        #auth.login(request, user)
+        #Check if "Remember Me" is selected
+        if not remember_me:
+            # set session timeout. Multiply the days with 60 * 60 * 24, because it was in day
+            auth.login(request, user)
+            request.session.set_expiry(0)
+            #return render_to_response('guestpage.html',{'rem':remember_me})
+            #settings.SESSION_EXPIRE_AT_BROWSER_CLOSE = False
         auth.login(request, user)
+
         # Redirect to a success page.
         return HttpResponseRedirect("/accounts/loggedin/")
+        #return remember_me
     else:
+
         # Show an error page
         #return render_to_response("testit.html" ,{'username':username , 'password':password})
-        return HttpResponseRedirect("/accounts/invalid/")
+        #if not user or not user.is_active:
+        form = MyRegistrationForm()
+        error = "Sorry, that login was invalid. Please try again."
+        return render_to_response('guestpage.html',{'error':error, 'form':form},context_instance = RequestContext(request))
+#keep me loggedin
+
 
 @login_required
 def loggedin(request):
-    profile = UserProfile.objects.select_related("user").get(user__username = request.user)
-    self = request.user
-    return render_to_response("home.html", {'form':profile, 'self':self})
+    #profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+    self = navbar(request.user.id)
+    self1 = self
+    return render_to_response("home.html", {'form':self, 'self':self1})
 
 def invalid_login(request):
     return render_to_response("invalid_login.html")
@@ -115,6 +149,7 @@ def register_user(request):
         args['form'] = form
         if form.is_valid():
             form.save()  # save user to database if form is valid
+            #username = form.clean_email_id['username']
             username = form.cleaned_data['username']
             email = form.cleaned_data['username']
             password=form.cleaned_data['password1']
@@ -122,12 +157,14 @@ def register_user(request):
             last_name=form.cleaned_data['last_name']
 
 
+
+
             salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
             activation_key = hashlib.sha1(salt+email).hexdigest()
             key_expires = datetime.datetime.today() + datetime.timedelta(2)
 
             #Get user by username
-            user=User.objects.get(username=username)
+            #user=User.objects.get(username=username)
 
             # Create and save user profile
             new_profile = UserProfile(user=user, activation_key=activation_key,
@@ -142,11 +179,16 @@ def register_user(request):
             send_mail(email_subject, email_body, 'pawan.kumar.13.1991@gmail.com',
                 [email], fail_silently=False)
 
-            return HttpResponseRedirect('/accounts/register/activate')
-    else:
-        args['form'] = MyRegistrationForm()
 
-    return render_to_response('guestpage.html', args, context_instance=RequestContext(request))
+
+            return HttpResponseRedirect('/accounts/register/activate')
+
+
+    else:
+        form = MyRegistrationForm()
+
+
+    return render_to_response('guestpage.html',{'form':form}, context_instance=RequestContext(request))
         #return HttpResponseRedirect('/accounts/register/success/')
 
 def register_activate(request):
@@ -276,7 +318,8 @@ def edit_profile(request):
     #self = request.user
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user.profile)
-        follow = userFollowActivity.objects.get(user=request.user)
+        #follow = userFollowActivity.objects.get(user=request.user)
+        follow = bandFollow.objects.values_list('band_id',flat=True).filter(user_id = request.user.id)
         generes = Generes.objects.get(user=request.user)
 
  #       generes =u','.join(self.cleaned_data['generes'])
@@ -291,7 +334,11 @@ def edit_profile(request):
             generes = Generes.objects.get(user=request.user)
         except Generes.DoesNotExist:
             generes = None
-        follow = userFollowActivity.objects.get(user=request.user)
+        try:
+            #follow = userFollowActivity.objects.get(user=request.user)
+            follow = bandFollow.objects.values_list('band_id',flat=True).filter(user_id = request.user.id)
+        except bandFollow.DoesNotExist:
+            follow = None
         first_name = request.user.first_name
         last_name = request.user.last_name
 
@@ -346,33 +393,95 @@ from django.db.models import Q
 @login_required
 def search(request):
     q = request.GET.get('q')
-    self = request.user
+    my_selection1= request.GET.get("my_selection")
+    searchProfiles = None
+    searchBands = None
+    self = navbar(request.user.id)
+    self1 = self.user.id
+
     if q is not None:
-        test= UserProfile.objects.select_related("user").filter(Q(user__first_name__contains = q)
-        | Q(user__last_name__contains = q)
-        | Q(user__username__contains = q ))
-        profile = UserProfile.objects.select_related("user").get(user__username = request.user)
-        from_user = profile.user.id
-        for i in test:
-            i.user1=from_user
-            to_user = i.user.id
-            i.user2 = str(from_user)+"|"+str(to_user)
-    return render_to_response( 'search.html', { 'pp':test, 'form':profile , 'self':self,"to":to_user},  context_instance = RequestContext(request))
+        # For Profile Searches
+        if my_selection1 == "Profile":
+            searchProfiles= UserProfile.objects.select_related("user").filter(Q(user__first_name__icontains = q)
+            | Q(user__last_name__icontains = q)
+            | Q(user__username__icontains = q ))
+
+        #profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+        #from_user = profile.user.id
+            self = navbar(request.user.id)
+            self1 = self.user.id
+            for i in searchProfiles:
+                i.user1=self1
+                to_user = i.user.id
+                i.user2 = str(self1)+"|"+str(to_user)
+        #For Band Searches
+        if my_selection1 == "Band":
+            searchBands= bandPage.objects.filter(Q(bandName__icontains = q))
+            for k in searchBands:
+                #bandOwnerId= k.user_id
+                #first_name = User.objects.values_list('first_name',flat=True).filter(id = bandOwnerId)
+                #last_name = User.objects.values_list('last_name',flat=True).filter(id = bandOwnerId)
+                #first_name = [firstname.encode("utf8") for firstname in User.objects.values_list('first_name',flat=True).filter(id = bandOwnerId)]
+                #last_name = [lastname.encode("utf8") for lastname in User.objects.values_list('last_name',flat=True).filter(id = bandOwnerId)]
+                #k.ownerName = str(first_name)+" "+str(last_name)
+                band_pk = k.bandId
+                k.fol = str(band_pk)+"|"+str(self.user.id)
+
+
+        #Search All
+        if my_selection1 == "All":
+            searchBands= bandPage.objects.filter(Q(bandName__icontains = q))
+            for k in searchBands:
+                #bandOwnerId= k.user_id
+                #k.firstname = User.objects.values_list('first_name',flat=True).filter(id = bandOwnerId)
+                #k.bandOwner2 = User.objects.values_list('last_name',flat=True).filter(id = bandOwnerId)
+                band_pk = k.bandId
+                k.fol = str(band_pk)+"|"+str(self.user.id)
+
+            searchProfiles= UserProfile.objects.select_related("user").filter(Q(user__first_name__icontains = q)
+            | Q(user__last_name__icontains = q)
+            | Q(user__username__icontains = q ))
+
+        #profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+        #from_user = profile.user.id
+            self = navbar(request.user.id)
+            self1 = self.user.id
+            for i in searchProfiles:
+                i.user1=self1
+                to_user = i.user.id
+                i.user2 = str(self1)+"|"+str(to_user)
+
+        #profile = UserProfile.objects.select_related("user").get(user__username = request.user)
+        #from_user = profile.user.id
+    return render_to_response( 'search.html', { 'pp':searchProfiles, 'self':self , 'self1':self1,'my_selection':my_selection1,"bands":searchBands},  context_instance = RequestContext(request))
 
 #form = self
 ########################view profile page###################################################
 @login_required
 def viewprofile(request , user_id = 40 , ctx = None):
     test= UserProfile.objects.select_related("user").get(user = user_id)
-    follow = userFollowActivity.objects.get(user=user_id)
+    #try:
+    #    follow = userFollowActivity.objects.get(user=request.user)
+    #except userFollowActivity.DoesNotExist:
+    #        follow = None
+    #follow = userFollowActivity.objects.get(user=user_id)
+    followId = bandFollow.objects.values_list('band_id',flat=True).filter(user_id=user_id)
+    #followList = bandFollow.objects.filter(user_id=user_id)
+    followList = bandPage.objects.filter(bandId__in = followId)
+    for f in followList:
+        band_id = f.bandId
+        f.fol = str(band_id)+"|"+str(request.user.id)
     c={}
     c.update(csrf(request))
     from_user = request.user.id
     to_user = test.user.id
     use = str(from_user)+"|"+str(to_user)
-    self = request.user
-    profile = UserProfile.objects.select_related("user").get(user__username = request.user)
-    return render_to_response('viewprofilepage.html',  {'profile':test ,'form':profile, 'follow':follow, 'ctx':ctx, 'from_user':use, 'self':self}, context_instance = RequestContext(request) )
+    #mutual_friends = Friend.objects.filter(Q(from_user_id=from_user) | Q(from_user_id=to_user)).count()
+    #friends_fu = Friend.objects.values_list('to_user_id',flat=True).filter(from_user_id=from_user)
+    #mutual_friends = Friend.objects.values_list('to_user_id',flat=True).filter(Q(from_user_id=to_user) & Q(to_user_id__in = friends_fu)).count()
+    #mutual_friends = Friend.objects.values_list('to_user_id',flat=True).filter(to_user_id__in=
+    self = navbar(request.user.id)
+    return render_to_response('viewprofilepage.html',  {'profile':test ,'form':self, 'ctx':ctx, 'from_user':use, 'self':self,'followList':followList}, context_instance = RequestContext(request) )
 ###################################################################
 
 ############################add friend#############################
@@ -397,7 +506,12 @@ def view_friends(request, username):
     user = get_object_or_404(user_model, username=username)
     qs = Friend.objects.select_related("UserProfile").filter(to_user=user)
     friends = [u.from_user for u in qs]
-    return render_to_response( 'view_friends.html', {'friends': friends})
+    self = navbar(request.user.id)
+    user1 = self.user.id
+    for i in friends:
+        to_user = i.id
+        i.user2 = str(user1)+"|"+str(to_user)
+    return render_to_response( 'view_friends.html', {'friends': friends, 'self':self})
 
 
 from django.contrib.auth.decorators import login_required
@@ -495,14 +609,25 @@ def friendship_clearnotify(request, username):
 #load friends friend
 def friendship_friends_friend(request , friendship_request_id):
     user = get_object_or_404(user_model, id=friendship_request_id)
+    self = navbar(request.user.id)
+    #friends_fu = Friend.objects.values_list('to_user_id',flat=True).filter(from_user_id=self.user.id)
+    #mutual_friends = Friend.objects.filter(Q(from_user_id=user) & Q(to_user_id__in = friends_fu))
+    #friends = Friend.objects.filter(Q(from_user_id=user)
+    #& ~Q(to_user_id__in = friends_fu)
+    #)
+    #profile = UserProfile.objects.select_related("user").get(user__id = request.user.id)
+    #user1 = profile.user.id
     friends = Friend.objects.friends(user)
-    profile = UserProfile.objects.select_related("user").get(user__id = request.user.id)
-    user1 = profile.user.id
+    user1 = self.user.id
     for i in friends:
         to_user = i.id
         i.user2 = str(user1)+"|"+str(to_user)
-    return render_to_response('view_friend_friends.html', {'friends': friends, 'profile':profile})
+    return render_to_response('view_friend_friends.html', {'friends': friends, 'self':self})
 
+#see all declines requests using template tags
+def decline_friend_request(request):
+    self = request.user
+    return render_to_response('friendship/template_ags/decline_friend_request.html' , {'from_user':self})
 
 
 #PopUp for generes Liked
@@ -563,62 +688,306 @@ from django.contrib.formtools.wizard.storage import get_storage
 from django.contrib.formtools.wizard.forms import ManagementForm
 from django.core.files.storage import FileSystemStorage
 import os
-from forms import bandPageForm1, bandPageForm2
+from forms import bandPageForm1, bandSettingsForm, bandPageForm2
 from django.forms.models import inlineformset_factory
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 
+from models import bandPage, bandSettings , bandMembers
+
 import logging
 logr = logging.getLogger(__name__)
 
+###################################################################################################
 
-UserFormSet = modelformset_factory(bandMembers,
-                                   form=bandPageForm2,
-                                   extra=5,
-                                   max_num=10,
-                                   can_delete=True)
+@login_required
+def bandedit1(request):
+    memFormSet = modelformset_factory(bandMembers, form=bandPageForm2, extra=1)
+    mquery = bandMembers.objects.all()
+    #saving formsets:
+    if request.method == 'POST':
+        m_formset = memFormSet(request.POST, request.FILES)
 
-form_list = [
-("uc", bandPageForm1),
-("u", UserFormSet),
-]
-
-TEMPLATES = {"0": "editbandpage_pk.html",
-             "1": "editbandpage2_pk.html",}
-
-
-
+        if m_formset.is_valid():
+            instance = bandMembers()
+            for form1 in m_formset:
+                for field , value in form1.cleaned_data.iteritems():
+                    setattr(instance,field,value)
+            instance.user = request.user
+            #instance.band=
+            instance.save()
 
 
+            return render(request , 'reload_page.html')
+        else:
+            return render(request , 'reload_page.html')
+
+        #form_data = process_form_data(m_formset)
+        #return render_to_response("bandpage_pk.html" , {'form_data':form_data})
+        #m_formset.save()
+        #saving them with new data
+        #else:
+        #    return HttpResponse("not valid formsets, dude") # for testing purposes
+    else: #request=GET
+        m_formset = memFormSet(queryset = mquery)
+        #zipped = zip(t_formset.forms, s_formset.forms)
+    return render (request, "test.html", {"todo_item_formset" : m_formset})
+
+######################################################################################################
+
+#######################################################################################################
+#create band page
+form_list = [('0', bandPageForm1),('1', bandSettingsForm),]
+
+#TEMPLATES = {"0": "editbandpage_pk.html", "1": "editbandpage2_pk.html",}
 
 class createBandPage(SessionWizardView):
+    login_required = True
     file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'media'))
     template_name = 'editbandpage_pk.html'
-    def get_form(self, step=None, data=None, files=None):
-        form = super(createBandPage, self).get_form(step, data, files)
-
-        # Determine the step if not given
-        if step is None:
-            step = self.steps.current
-
-        if step == '1':
-         # Return number of forms for formset requested
-         # in previous step.
-            userchoice = self.get_cleaned_data_for_step('0')
-            num_users = userchoice['memberCount']
-            UserFormSet.extra = num_users
-            return UserFormSet
-        return form
 
 
-
-    def get_template_names(self):
-        return [TEMPLATES[self.steps.current]]
-
-    def done(self, form_list, **kwargs):
-        form_data = process_form_data(form_list)
-        return render_to_response("bandpage_pk.html" , {'form_data':form_data})
+    def done(self, form_list,**kwargs):
+        #model1
+        instance = bandPage()
+        for form in form_list:
+            for field , value in form.cleaned_data.iteritems():
+                setattr(instance,field,value)
+        instance.user = self.request.user
+        instance.save()
+        #model2
+        instance1 = bandSettings()
+        for form1 in form_list:
+            for field , value in form1.cleaned_data.iteritems():
+                setattr(instance1,field,value)
+        instance1.user = self.request.user
+        instance1.band=instance
+        instance1.save()
+        return HttpResponseRedirect('/band/'+str(instance.bandName)+'/'+str(instance.bandId)+'/')
+        #form_data = process_form_data(form_list)
+        #return render_to_response("bandpage_pk.html" , {'form_data':form_data})
 
 def process_form_data(form_list):
     form_data = [form.cleaned_data for form in form_list]
     return form_data
+
+########################################################################################################################
+@csrf_protect
+@login_required
+#view band page after creating
+def bandpage(request , bandName, bandId):
+    args = {}
+    args.update(csrf(request))
+
+    band_pk = bandId
+    band_page_details = bandPage.objects.get(bandId = band_pk)
+    self = navbar(request.user.id)
+    fol = str(band_pk)+"|"+str(self.user.id)
+
+
+    if request.method == 'POST':
+        band_page = bandPage.objects.get(pk=band_pk)
+        band_page_form = bandPageForm1(request.POST, request.FILES, instance = band_page)
+        if band_page_form.is_valid():
+            band_page_form.save()
+            return render(request , 'reload_page.html')
+        else:
+            #form validation error
+            return render(request , 'reload_page.html')
+    else:
+        if band_page_details.user_id == request.user.id:
+            #admin page - editable version
+            band_page = bandPage.objects.get(pk=band_pk)
+            band_page_form = bandPageForm1(instance = band_page)
+            band_settings = bandSettings.objects.get(band_id=band_pk)
+            band_settings_form = bandSettingsForm(instance = band_settings)
+
+            memFormSet = modelformset_factory(bandMembers, form=bandPageForm2, extra=1)
+            mquery = bandMembers.objects.all()
+            m_formset = memFormSet(queryset = mquery)
+
+            band_members = bandMembers.objects.values_list('member_username' , flat=True).filter(band_id=band_pk)
+            user_data = User.objects.values_list('id', flat = True).filter(email__in = band_members)
+            user_profile = UserProfile.objects.select_related('user').filter(user_id__in = user_data)
+            #band_related = bandMembers.objects.select_related('User','UserProfile').filter(member_username__in = band_members)
+            data = zip(band_members,user_data, user_profile)
+
+            ##
+            uploadaudioform = bandAudioFilesForm()
+
+            return render_to_response ('Band_page.html',{'bandpageform':band_page_form, 'bandsettingsform':band_settings_form, 'bandmembersform':memFormSet,'bandmembers':band_members, 'band_pk':band_pk, 'form':uploadaudioform, 'user_profile':user_profile, 'self':self, 'from_user':self,'fol':fol}, context_instance=RequestContext(request))
+        else:
+            #view band page only
+            band_page = bandPage.objects.get(pk=band_pk)
+            return render_to_response ('Band_page.html',{'bandpageform':band_page_form,'fol':fol}, context_instance=RequestContext(request))
+
+#add artists to the page
+@login_required
+def band_artist_edit(request):
+    bandId=41
+
+    memFormSet = modelformset_factory(bandMembers, form=bandPageForm2)
+    #mquery = bandMembers.objects.all()
+    band_page = bandPage.objects.get(pk = bandId)
+    formset_qset = bandMembers.objects.filter(band_id=41)
+
+    m_formset = memFormSet(queryset=formset_qset)
+
+    #saving formsets:
+    if request.method == 'POST':
+
+        m_formset = memFormSet(request.POST)
+
+        formset_qset = bandMembers.objects.filter(band_id=41).exists()
+        #, queryset=formset_qset)
+        #m_formset = memFormSet(request.POST, request.FILES , queryset= formset_qset)
+        if m_formset.is_valid():
+            for form1 in m_formset:
+                tmp = form1.save(commit=False)
+                tmp.user = request.user
+                tmp.band = band_page
+                tmp.save()
+            return HttpResponseRedirect("/accounts/loggedin/")
+        else:
+            return HttpResponse (m_formset.errors)
+    else:
+        pass
+        #form_data = process_form_data(m_formset)
+        #return render_to_response("bandpage_pk.html" , {'form_data':form_data})
+        #m_formset.save()
+        #saving them with new data
+        #else:
+        #    return HttpResponse("not valid formsets, dude") # for testing purposes
+
+
+#upload audio files
+from utils import handle_uploaded_file
+@csrf_protect
+@login_required
+def band_upload_audio(request , bandId):
+    band_pk = bandId
+    method = request.method
+#    args = {}
+#    args.update(csrf(request))
+    #form = bandAudioFilesForm()
+    band_page = bandPage.objects.get(pk=band_pk)
+    #return HttpResponse('hello world end')
+    if method == 'POST':
+        #return HttpResponse('hello world')
+        #band_page = bandPage.objects.get(pk=band_pk)
+        form = bandAudioFilesForm(request.POST, request.FILES)
+        #args['form'] = form
+        #return HttpResponse('nhello worldp')
+        #val = form.is_valid()
+        #val1 = form.errors
+        #return HttpResponse(val1)
+        if form.is_valid():
+            #return HttpResponse('nhello world')
+            #file = form.audiofile
+            #handle_uploaded_file(request.FILES['file'])
+            form.artists = form.cleaned_data['artists']
+            tmp = form.save(commit=False)
+            tmp.user = request.user
+            tmp.band = band_page
+            tmp.save()
+            #form.save()
+            #handle_uploaded_file(request.FILES['file'])
+
+            #form.save()
+            return HttpResponseRedirect('/accounts/loggedin/')
+            # If we are here, the above file validation has completed
+            # so we can now write the file to disk
+
+
+        else:
+            return HttpResponse(form.errors)
+            #return HttpResponseRedirect('/accounts/profile/')
+    else:
+        form = bandAudioFilesForm()
+        form.fields['artists'].queryset=bandMembers.objects.filter(band = band_pk)
+        return render_to_response('Band_page.html', {'form': form} , context_instance=RequestContext(request))
+
+
+#test datepicker
+def datepicker(request):
+    c={}
+    c.update(csrf(request))
+    #form = audiouploadForm()
+    c['form'] =  audiouploadForm()
+    return render_to_response("bandTest.html", c)
+
+
+#band follow
+@csrf_protect
+@login_required
+def band_follow(request, bandId):
+    args = {}
+    args.update(csrf(request))
+
+    if request.method == 'POST':
+        user_id = request.user.id
+        band_page = bandPage.objects.get(pk=bandId)
+        band_id = band_page.bandId
+        b=bandFollow(user_id=user_id,band_id=band_id)
+        b.save(force_insert=True)
+
+    else:
+        template = '/band/'+str(band_page.bandName)+'/'+str(band_id)
+        return HttpResponseRedirect(template)
+    template = '/band/'+str(band_page.bandName)+'/'+str(band_id)
+    return HttpResponseRedirect(template)
+
+#band_unfollow
+@csrf_protect
+@login_required
+def band_unfollow(request, bandId):
+    args = {}
+    args.update(csrf(request))
+    band_page = bandPage.objects.get(pk=bandId)
+    band_id = band_page.bandId
+
+    if request.method == 'POST':
+        user_id = request.user.id
+        band_page = bandPage.objects.get(pk=bandId)
+        band_id = band_page.bandId
+        b=bandFollow.objects.filter(user_id=user_id).filter(band_id=band_id)
+        b.delete()
+
+    else:
+        template = '/band/'+str(band_page.bandName)+'/'+str(band_id)
+        return HttpResponseRedirect(template)
+    template = '/band/'+str(band_page.bandName)+'/'+str(band_id)
+    return HttpResponseRedirect(template)
+
+
+
+
+
+
+
+
+#test audioupload
+@login_required
+@csrf_protect
+def add_audio(request):
+    template = 'bandTest.html'
+    form = audiouploadForm()
+    c={}
+    c.update(csrf(request))
+
+    # Add audio
+    if request.method == 'POST':
+        #return HttpResponse("step1")
+        form = audiouploadForm(request.POST,request.FILES)
+        if form.is_valid():
+            #return HttpResponse("Hi")
+            form.save()
+            return HttpResponseRedirect('/accounts/profile/')
+
+        # To retain frontend widget, if form.is_valid() == False
+        #form.fields['audiofile'].widget = CustomerAudioFileWidget()
+
+    c['form'] =  audiouploadForm()
+
+    #return render_to_response(template, c)
+    return HttpResponse(form.errors)

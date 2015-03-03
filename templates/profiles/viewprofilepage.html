@@ -3,6 +3,7 @@
     <html>
         {% load %}
 {% load friendship_tags %}
+    {% load  bandfollow_tags %}
 {% endblock %}
 {% block title %}
     <title> Guitar Club </title>
@@ -19,22 +20,22 @@
 {% block body %}
     <body>
 {% endblock %}
-
-
-{% block small_pic %}
-                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.profilePic.url  }}')">
-                        </div>
-{% endblock %}
 {% block content %}
+
                                  <!-- MIDDLE-CONTAINER -->
              <div class="middle-container">
 
                 <div class="profile"> <!-- PROFILE (MIDDLE-CONTAINER) -->
                     <div class="profile-left">
-                        <{% load url from future %}
+                        {% load url from future %}
                         <div class="profile-picture big-profile-picture clear " style="background-image:url('{{profile.profilePic.url}}')">
                         </div>
                         <h1 class="user-name">{{profile.user.first_name}} {{profile.user.last_name}}</h1>
+                        <div class="request_sent">
+                            {% autoescape off %}
+                            {{a|mutual_friends_count:from_user}}{% csrf_token %} {% endautoescape %} Mutual Friend(s)
+                            <!--{{mf}}-->
+                        </div>
                         <div>
                             <h2 id="Gender">Gender : {{profile.gender}}</h2>
                         </div>
@@ -47,27 +48,56 @@
                         <div>
                             <h2 id="hometown">Home Town:{{profile.homeTown}}</h2>
                         </div>
-                        <div class="request_sent">
+                        <div class="request_sent1">
                         {% autoescape off %}
                         {{a|check_friendship:from_user}}{% csrf_token %} {% endautoescape %}</form>
                         </div>
-                        <!--create template tag to render friends friend only if the users are friends !-->
-
+                        <!--template tag to render friends friend only if the users are friends !-->
                         {% if a|check_friendship:from_user|length ==  128 %}
-                            <br><a href = "/friend/unfriend/{{profile.user.id}}/">unfriend</a><br>
-                            <a href = "/find/friends/friend/{{profile.user.id}}/"> {{profile.user.first_name}} {{profile.user.last_name}}'s Friends</a>
+                            <a id="unfriend" href = "/friend/unfriend/{{profile.user.id}}/">unfriend</a><br>
                         {% endif %}
+
                 </div>
 
                 </div>
                 <div class="profile_add">
-                    <div class="profile_add1">
-                        <p>bandLikes : </p><br><br>
-                        <p>{{follow.bandLikes}}</p><br>
-                    </div>
-                    <div class = "profile_add2">
-                        <p>bandFollows:</p><br><br>
-                        <p>{{follow.bandFollows}}</p><br>
+                    <div class = "tab-format">
+                        <ul class="tabs">
+                            <li class="selected"><a href="#view1">About</a></li>
+                            <li><a href="#view2">Timeline</a></li>
+                            <li><a href="#view3">Friends</a></li>
+                        </ul>
+                        <div class="tabcontents">
+                            <div class="view1" id="view1">
+                            about
+                            </div>
+                            <div class="view2" id="view2">
+                                {% if follow %}
+                                <div class="profile_add1">
+                                    <p>bandLikes : </p><br><br>
+                                {% for f in followList %}
+                                    <p>{{f.band_name}}</p>
+                                    <div class="friend_tag">
+
+                                    {% autoescape off %}
+                                    {{a|check_follow:f.fol}}{% csrf_token %} {% endautoescape %}</form>
+                                    </div>
+                                {% endfor %}
+                                </div>
+                                {% else %}
+                                <div>
+                                Not following any bands
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="view3" id="view3">
+                                <div  class="profile_add1">
+                                    {% if a|check_friendship:from_user|length ==  128 %}
+                                    <a href = "/find/friends/friend/{{profile.user.id}}/"> {{profile.user.first_name}} {{profile.user.last_name}}'s Friends</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 {% endblock %}

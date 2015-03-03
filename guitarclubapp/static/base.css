@@ -1,5 +1,4 @@
 /** Inspired by: http://graphicburger.com/flat-design-ui-components/ **/
-/** Line-chart and donut-chart made by @kseso http://codepen.io/Kseso/pen/phiyL **/
 
 
 /************************************ FONTS ************************************/
@@ -92,6 +91,13 @@ h2, p, a, span{
 	font-size: 20px;
 	color: #FFF;
 	padding:0 25px;
+}
+.icon3{
+    font-size: 55px;
+    float:right;
+}
+.icon-keyboard:before {
+    content: "\e955";
 }
 #hoverable .icon{
     float:right;
@@ -269,12 +275,15 @@ margin-top:1px;
  .header-menu .view-friends {
 text-align:center;
 width:100%;
-}
-.header-menu .view-friends a{
-width:100%;
+cursor:pointer;
+cursor:hand;
 }
 /*friends drop down ends here*/
 /*drop down next to small pi c and small pic */
+.right-icons{
+top:15px;
+position:relative;
+}
 	.small-profile-picture {
 		border: 2px solid #50597b;
 		width: 40px;
@@ -325,7 +334,8 @@ cursor:pointer;
  background:#1ABC9C;
 color: white;
 display: block;
-margin-top:0.8px;
+position:relative;
+margin-top:1px;
 cursor:pointer;
  /*this is where the rounded corners for the dropdown disappears*/
  }
@@ -449,6 +459,7 @@ input[type=search] {
     outline: none;
     margin-right: 1px;
     margin-top:5px;
+    margin-left:2px;
     transition: all 0.4s;
 }
 input[type=search]:focus {

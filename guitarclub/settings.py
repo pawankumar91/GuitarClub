@@ -49,6 +49,8 @@ INSTALLED_APPS = (
 
 )
 
+
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,6 +59,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
+
+#SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 TEMPLATE_DIRS = (
     '/home/pakumar1/guitarclub/templates/',
@@ -123,4 +127,4 @@ AUTH_PROFILE_MODULE= 'guitarclubapp.UserProfile'
 
 #to redirect user to login page
 import django.contrib.auth
-django.contrib.auth.LOGIN_URL = '/accounts/login/'
+django.contrib.auth.LOGIN_URL = '/'

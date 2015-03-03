@@ -1,65 +1,326 @@
-.cover-image {
-    width : 100%;
-    height : 250px;
-    background-color : #767563 ;
+body {
+  margin: 0;
+  width : screen.Width+"px";
+min-width : 1345px;
+height:100%;
+  background-repeat: no-repeat;
+background-repeat: no-repeat;
+background-attachment: fixed;
+background-position: center;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+   overflow-x: auto;
+    overflow-y: auto;
 }
 
+.cover-image {
+    width : 80%;
+    height : 300px;
+    margin:0 auto;
+    cursor: pointer;
+    cursor: hand;
+    position:relative;
+    margin-top:8px;
+    margin-left:18px;
+    border-radius: 5px 5px 5px 5px;
+    background-color : #767563 ;
+    z-index:1;
+background-position: center center;
+background-repeat: no-repeat;
+-moz-background-repeat: no-repeat;
+background-size: cover ;
+-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    overflow-x: visible;
+overflow: visible;
+}
+
+.back-pic2{
+    width: 80%;
+    height:120px;
+    margin:0 auto;
+    position:absolute;
+    margin-top:0px;
+    margin-left:18px;
+     background-color: #708090;
+     border-radius: 0px 0px 5px 5px;
+    outline: none;
+    text-align: center;
+    opacity:0;
+    z-index:3;
+    top:239px;
+}
+#upload-back-pic{
+    position:relative;
+    top:40px;
+    font-size:25px;
+    font-family:'Open Sans', sans-serif;
+    margin :0 auto;
+}
+
+#id_bandCover {
+    color: #fff;
+    background:#fff;
+    cursor: pointer;
+    cursor: hand;
+     margin-left:18px;
+    width: 80%;
+    height:120px;
+    border: none;
+    outline: none;
+    position:absolute;
+    z-index: 5;
+    opacity:0;
+    top:239px;
+}
+
+.big-image{
+    position:absolute;
+    min-width:100%;
+    min-height:100%;
+    overflow: hidden;
+    cursor: pointer;
+    cursor: hand;
+    background-color:#111;
+    opacity:0.6;
+    visibility:hidden;
+    z-index:10;
+}
+.clicked-image{
+    position:absolute;
+    width:550px;
+    height:550px;
+    top:10%;
+    left:30%;
+    margin:0 auto;
+    z-index:11;
+    visibility:hidden;
+    border: 5px solid #50597b;
+background-position: center center;
+background-repeat: no-repeat;
+-moz-background-repeat: no-repeat;
+background-size: cover ;
+-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    overflow-x: visible;
+overflow: visible;
+}
+
+.big-image1{
+    position:absolute;
+    min-width:100%;
+    min-height:100%;
+    overflow: hidden;
+    cursor: pointer;
+    cursor: hand;
+    background-color:#111;
+    opacity:0.6;
+    visibility:hidden;
+    z-index:10;
+}
+.clicked-image1{
+    position:absolute;
+    width:550px;
+    height:550px;
+    top:10%;
+    left:30%;
+    margin:0 auto;
+    z-index:11;
+    visibility:hidden;
+    border: 5px solid #50597b;
+background-position: center center;
+background-repeat: no-repeat;
+-moz-background-repeat: no-repeat;
+background-size: cover ;
+-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    overflow-x: visible;
+overflow: visible;
+}
+
+.pc2{
+    width: 200px;
+    height:100px;
+     background-color: #708090;
+     border-bottom-left-radius: 100px;
+     border-bottom-right-radius:100px;
+    outline: none;
+    text-align: center;
+    opacity:0;
+    left:6.931%;
+    position:absolute;
+    z-index:15;
+    top:375px;
+
+}
+
+
+#upload-pic{
+    position:relative;
+    color:#fff;
+    opacity:1;
+    top:45px;
+    font-size:18px;
+    font-family:'Open Sans', sans-serif;
+    margin :0 auto;
+    text-decoration: none;
+}
+
+#id_bandLogo {
+    color: #fff;
+    background:#fff;
+    cursor: pointer;
+    cursor: hand;
+    width: 200px;
+    height:100px;
+    border: none;
+    border-bottom-left-radius: 100px;
+    border-bottom-right-radius: 100px;
+    outline: none;
+    position:absolute;
+    left:6.931%;
+    z-index: 25;
+    opacity:0;
+    top:375px;
+}
 .big-profile-picture {
 		border: 5px solid #50597b;
-		position:relative;
+		position:absolute;
+		cursor: pointer;
+        cursor: hand;
 		margin:0 auto;
 		height:200px;
 		width:200px;
-        z-index:100;
-		float :left;
-		margin-top: 5px;
-
+        top:270px;
+        left:6.5%;
+		z-index:8;
+background-position: center center;
+background-repeat: no-repeat;
+-moz-background-repeat: no-repeat;
+background-size: cover ;
+-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    overflow-x: visible;
+overflow: visible;
 }
+
+.camera{
+    position:absolute;
+    text-shadow: 2px 2px rgba(6,6,6,0.5), 1px 1px rgba(255,255,255,0);
+    left:17.3%;
+    top:415px;
+    color:#fff;
+    z-index:14;
+    opacity:1;
+}
+
 .main-container {
 	font-family: 'Ubuntu', sans-serif;
 	width: 100%
 	height: auto;
 }
-.profile-picture {
-	overflow: hidden;
-	-webkit-box-sizing: content-box;
-  	-moz-box-sizing: content-box;
-  	box-sizing: content-box;
-  	background:#fff;
-  	border-radius:100%;
-    z-index:300;
-}
-.nav_bar {
-    position:relative;
-    width:100%;
-    height:50px;
-    background:#22313f;
-}
+
 .band-name{
-    position:relative;
+    position:absolute;
     display:block;
-  	top:-44px;
   	font-size:30px;
-  	width:100%;
+  	width:80%;
+  	margin-left:18px;
   	background:#22313f;
+  	text-align:left;
   	color:#fff;
+  	z-index:7;
 
 }
 #font-color{
     color:#fff;
-    margin-left:70px;
+    position:relative;
+    font-size:30px;
+    margin: 0 auto;
+    left:28%;
+    text-decoration:none;
 }
 
+#Upload-video{
+    display: inline-block;
+    background-color: #1ABC9C;
+    color: #fff;
+    padding-top:5px ;
+    cursor: pointer;
+    left:80%;
+    width:100px;
+    height:30px;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    position:absolute;
+    text-decoration:none;
+    margin:6px auto;
+    text-align:center;
+    z-index:7;
+}
+#Upload-video:hover {
+ background-color: #019875;
+}
 
+#Upload-audio{
+    display: inline-block;
+    background-color: #1ABC9C;
+    color: #fff;
+    padding-top:5px ;
+    cursor: pointer;
+    left:90%;
+    width:100px;
+    height:30px;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    position:absolute;
+    text-decoration:none;
+    margin:6px auto;
+    text-align:center;
+    z-index:7;
+}
+#Upload-audio:hover {
+ background-color: #019875;
+}
+
+#Upload-audio-pop{
+    position:absolute;
+    background:#fff;
+    width:550px;
+    height:550px;
+    top:10%;
+    left:30%;
+    margin:0 auto;
+    z-index:11;
+    visibility:hidden;
+    border: 5px solid #50597b;
+background-position: center center;
+background-repeat: no-repeat;
+-moz-background-repeat: no-repeat;
+background-size: cover ;
+-webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    overflow-x: visible;
+overflow: visible;
+}
 
 /* Tab Content - menucool.com */
 
 .tab-format{
-    float:left;
     position:relative;
-    width:100%;
-    right:-210px;
-    top:-210px;
+    float:left;
+    left:19px;
+    margin-top:55px;
+    width:80.0%;
 }
 ul.tabs
 {
@@ -67,7 +328,7 @@ ul.tabs
     font-size: 0;
     margin:0;
     list-style-type: none;
-    text-align: left; /*set to left, center, or right to align the tabs as desired*/
+    text-align: right; /*set to left, center, or right to align the tabs as desired*/
 
 }
 
@@ -75,19 +336,20 @@ ul.tabs li
 {
     display: inline;
     margin: 0;
-    margin-right:3px; /*distance between tabs*/
+    margin-right:2px; /*distance between tabs*/
 }
 
 ul.tabs li a
 {
-    font: normal 12px Verdana;
+    font-size: 14px;
+    font-family:'Open Sans', sans-serif;
     text-decoration: none;
     position: relative;
-    padding: 7px 16px;
+    padding: 7px 38px;
     border: 1px solid #CCC;
     border-bottom-color:#B7B7B7;
-    color: #000;
-    background: #F0F0F0 url(tabbg.gif) 0 0 repeat-x;
+    color: #fff;
+    background: #1ABC9C url(tabbg.gif) 0 0 repeat-x;
     border-radius: 3px 3px 0 0;
     outline:none;
 }
@@ -95,12 +357,13 @@ ul.tabs li a
 ul.tabs li a:visited
 {
     color: #000;
+
 }
 
 ul.tabs li a:hover
 {
-    border: 1px solid #B7B7B7;
-    background:#F0F0F0 url(tabbg.gif) 0 -36px repeat-x;
+    border: 1px solid #019875;
+    background:#019875 url(tabbg.gif) 0 -36px repeat-x;
 }
 
 ul.tabs li.selected a, ul.tabs li.selected a:hover
@@ -109,7 +372,8 @@ ul.tabs li.selected a, ul.tabs li.selected a:hover
     top: 0px;
     font-weight:bold;
     background: white;
-    border: 1px solid #B7B7B7;
+    border: 1px solid #019875;
+    color:#111;
     border-bottom-color: white;
 }
 
@@ -122,7 +386,56 @@ ul.tabs li.selected a:hover
 
 div.tabcontents
 {
-    border: 1px solid #B7B7B7; padding: 30px;
-    background-color:#FFF;
-    border-radius: 0 3px 3px 3px;
+    border: 1px solid #019875; padding: 20px;
+    background-color:#fff;
+    border-radius: 0 0px 5px 5px;
+    width:100%%;
+}
+.pic-container{
+    width:100%;
+
+
+}
+.inner-content-1{
+    position:relative;
+    width:100%;
+    height:100px;
+    margin: 10px auto;
+    background-color:#ECECEC;
+    border-radius: 5px 5px 5px 5px;
+}
+
+
+/* formating view3*/
+.item {
+background-color: #dcf0f7;
+border: 1px solid #ddd;
+margin-bottom: 4px;
+padding: 5px 15px;
+}
+
+input[type=submit] {
+    display: inline-block;
+    background-color: #1ABC9C;
+    color: #fff;
+    cursor: pointer;
+    width: 100px;
+    height:35px;
+    border: none;
+    border-radius: 3px;
+    outline: none;
+    position:relative;
+}
+input[type=submit]:hover {
+ background-color: #019875;
+}
+.view3_submit{
+    background-color: #dcf0f7;
+    padding:20px 20px;
+    color: #fff;
+}
+.sub3{
+    display:none;
+    position:relative;
+    z-index:200;
 }

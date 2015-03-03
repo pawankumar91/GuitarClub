@@ -1,0 +1,16 @@
+{% load %}
+
+{% load friendship_tags %}
+
+<ul>
+    {% if a|decline_friend_requests:from_user.id %}
+        {% for decline_request in a|decline_friend_requests:from_user %}
+        <li>{{ decline_request.first_name }} {{ decline_request.last_name}}'s friend request was declined.</li>
+        <a href = '/friend/accept/{{decline_request.id}}/'> Accept Now</a><br><br>
+        {% endfor %}
+    {% else %}
+        <p> You have not declined any friend requests :) </p><br><br>
+    {% endif %}
+<li><a href = "/view/friends/{{from_user.email}}"> View Friends</a></li>
+
+</ul>

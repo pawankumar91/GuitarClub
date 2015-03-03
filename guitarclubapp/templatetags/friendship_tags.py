@@ -1,5 +1,6 @@
 from django import template
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from decimal import *
 
 from guitarclubapp.models import User, Friend, FriendshipRequest, Follow
@@ -100,7 +101,7 @@ def check_friendship( user , args):
                     "Accept or decline friend request"
                     frnd_rqst= User.objects.get(id = to_user)
                     reqst_pk = frnd_rqst.pk
-                    template = str("<a href = '/friend/accept/")+str(reqst_pk)+str("'/> Accept </a> &nbsp&nbsp <a href = '/friend/reject/")+str(reqst_pk)+ str("'/> Decline </a>")
+                    template = str("""<a id="accept" href = "/friend/accept/""")+str(reqst_pk)+str("""/"> Accept </a> &nbsp&nbsp <a id="reject" href = "/friend/reject/""")+str(reqst_pk)+ str("""/"> Decline </a> <form>""")
                     return (template)
             else:
 
@@ -130,7 +131,33 @@ def friend_accpt_notify(user , from_user):
     user_info = User.objects.filter(id__in = accpt_notify)
     return (user_info)
 
+@register.filter(name = 'decline_friend_requests')
+def decline_friend_requests(user , from_user):
+    requests=FriendshipRequest.objects.values_list('from_user_id',flat=True).filter(to_user_id = from_user , rejected__isnull = False)
+    user_details = User.objects.filter(id = requests)
+    return user_details
+
+#Mutual friends
+@register.filter(name = 'mutual_friends_count')
+def mutual_friends_count( user , args):
+    if args is None:
+        return False
+    arg_list= args.split("|")
+    from_user = arg_list[0]
+    to_user = arg_list[1]
+    #check if they are friends
+    if from_user == to_user:
+        return 0
+    else:
+        friends_fu = Friend.objects.values_list('to_user_id',flat=True).filter(from_user_id=from_user)
+        #friends_tu = Friend.objects.values_list('to_user_id',flat=True).filter(from_user_id=to_user)
+        mutual_friends = Friend.objects.values_list('to_user_id',flat=True).filter(Q(from_user_id=to_user) & Q(to_user_id__in = friends_fu)).count()
+        return mutual_friends
+
+
 register.simple_tag(check_friendship)
 register.simple_tag(friend_requests)
 register.simple_tag(friend_request_notify)
 register.simple_tag(friend_accpt_notify)
+register.simple_tag(decline_friend_requests)
+register.simple_tag(mutual_friends_count)

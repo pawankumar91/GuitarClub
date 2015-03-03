@@ -1,10 +1,9 @@
-
+{% extends "base.html" %}
 {% block html %}
     <html>
-        {% load i18n %}
+         {% load i18n %}
         {% load %}
     {% load friendship_tags %}
-
 {% endblock %}
 {% block title %}
     <title> Guitar Club </title>
@@ -14,42 +13,51 @@
     <meta charset="utf-8" />
         <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
         <meta name="robots" content="all">
-        <link href="/static/editorpage.css" rel="stylesheet">
-        <script type="text/javascript" async src="/static/editorpage.js"></script>
+        <link href="/static/viewfriends.css" rel="stylesheet">
 {% endblock %}
 
 {% block body %}
     <body>
 {% endblock %}
 
-
-{% block small_pic %}
-                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.instance.profilePic.url  }}')">
-                        </div>
-{% endblock %}
 {% block content %}
-                                 <!-- MIDDLE-CONTAINER -->
-           <div class="middle-container">
+                          <!-- MIDDLE-CONTAINER -->
+            <div class="middle-container">
                 <div class="profile"> <!-- PROFILE (MIDDLE-CONTAINER) -->
                     <div class="profile-left">
 
                     </div>
-
                 </div>
+
                 <div class="search_results">
                     <div class="result">
-                        {{friends.user.first_name}}
-
+                      {% if friends %}
                       {% for i in friends %}
                         <div id="userresults">
-                            <img src="{{i.profile.profilePic.url}}" width = "80px"><br>
-                            <a href = "/profiles/{{i.id}}/" >{{i.first_name}} {{i.last_name}}</a><br>
-                            Home Town: {{i.profile.homeTown}}<br>
-                            Current Place: {{i.profile.currentPlace}}<br>
-
-
-
+                            <div class="user-pic clear">
+                                <img src="{{i.profile.profilePic.url}}" width = "80px">
+                            </div>
+                            <div class="userdetails">
+                                <a href = "/profiles/{{i.id}}/" >{{i.first_name}} {{i.last_name}}</a><br>
+                                <p>{{i.profile.currentPlace}}<br></p>
+                                {% autoescape off %}
+                                    {{a|mutual_friends_count:i.user2}}{% csrf_token %} {% endautoescape %} Mutual Friend(s)
+                                    <!--{{mf}}-->
+                            </div>
+                       <!--template tag to render friends friend !-->
+                               <div class = "view_friends">
+                                    <a href = "/find/friends/friend/{{i.id}}/">View friends</a>
+                                </div>
+                        </div>
+                         <div id="space">
+                                <p></p>
+                            </div>
                       {% endfor %}
+                      {% else %}
+                      <div id="userresults">
+                        <h4>{{self.user.first_name}} {{self.user.last_name}}, you have no friends yet</h4>
+                      </div>
+                      {% endif %}
                       {{request.user}}
                     </div>
                 </div><!-- end search results-->

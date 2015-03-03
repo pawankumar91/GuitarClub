@@ -1,10 +1,10 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.views import login, logout
 from django.contrib.auth import views as auth_views
-
+from django.core.urlresolvers import reverse_lazy
 from django.conf.urls import patterns, url
 
-from guitarclubapp.forms import bandPageForm1 , bandPageForm2
+from guitarclubapp.forms import bandPageForm1, bandSettingsForm
 from guitarclubapp.views import createBandPage
 
 from django.contrib import admin
@@ -17,13 +17,13 @@ urlpatterns = patterns('',
     # url(r'^$', 'guitarclub.views.home', name='home'),
     #url(r'^$', 'django.contrib.auth.views.login'),
 
-    url(r'^$', 'guitarclubapp.views.guestpage'),
+    url(r'^$', 'guitarclubapp.views.check_loggedin'),
     url(r'^guest_login/$', 'guitarclubapp.views.guestpage'),
 
-    url(r'^accounts/login/$',  'guitarclubapp.views.guestpage'),
+    url(r'^accounts/login/$',  'guitarclubapp.views.guestpage',name="guestpage"),
     url(r'^accounts/auth/$',  'guitarclubapp.views.auth_view'),
     url(r'^accounts/logout/$',  'guitarclubapp.views.logout'),
-    url(r'^accounts/loggedin/$', 'guitarclubapp.views.loggedin'),
+    url(r'^accounts/loggedin/$', 'guitarclubapp.views.loggedin',name="loggedin"),
     url(r'^accounts/invalid/$', 'guitarclubapp.views.invalid_login'),
     url(r'^accounts/login/$', 'django.contrib.auth.views.login'), # If user is not login it will redirect to login page
 
@@ -86,12 +86,23 @@ url(r'^friend_requests/$', 'guitarclubapp.views.friend_requests', name = 'friend
 url(r'^friend/add/(?P<to_username>[\+\w\.@-_]+)/$','guitarclubapp.views.friendship_add_friend'),
 url(r'^friend/requests/$','guitarclubapp.views.friendship_request_list'),
 url(r'^view/friends/(?P<username>[\+\w\.@-_]+)/$','guitarclubapp.views.view_friends'),
+url(r'^friend/accept/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_accept'),
 url(r'^friend/reject/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_reject',name='friendship_reject'),
 url(r'^friend/revoke/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_revoke',name='friendship_revoke'),
 url(r'^friend/clearnotify/(?P<username>[\+\w\.@-_]+)/$','guitarclubapp.views.friendship_clearnotify',name='friendship_clearnotify'),
 url(r'^friend/unfriend/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_unfriend',name='friendship_unfriend'),
 url(r'^find/friends/friend/(?P<friendship_request_id>\d+)/$','guitarclubapp.views.friendship_friends_friend',name='friendship_friends_friend'),
+url(r'^friend/requests/declined/$','guitarclubapp.views.decline_friend_request',name='decline_friend_request'),
 
+
+################################################BAND PAGES####################################################
+url(r'^band/create/$', createBandPage.as_view([bandPageForm1 , bandSettingsForm])),
+url(r'^band/(?P<bandName>[\+\w\.@-_]+)/(?P<bandId>\d+)/$','guitarclubapp.views.bandpage',name='bandpage'),
+url(r'^band/artist/pk/$','guitarclubapp.views.band_artist_edit',name='band_artist_edit'),
+url(r'^band/upload/audio/(?P<bandId>\d+)/$','guitarclubapp.views.band_upload_audio',name='band_upload_audio'),
+#############################################band follow########################################
+url(r'^follow/(?P<bandId>\d+)/$','guitarclubapp.views.band_follow',name='band_follow'),
+url(r'^unfollow/(?P<bandId>\d+)/$','guitarclubapp.views.band_unfollow',name='band_follow'),
 
 ##test only
 url(r'^testprofiles/(?P<user_id>\d+)/$', 'guitarclubapp.views.test'),
@@ -116,17 +127,17 @@ url(r'^accounts/profile_v1/$', 'guitarclubapp.views.userFollow'),
 url(r'^accounts/profile_v2/$', 'guitarclubapp.views.multiChoice_v1'),
 #url(r'^accounts/editprofile/$', 'guitarclubapp.views.editprofilepage'),
 url(r'^accounts/bandpage/$', 'guitarclubapp.views.testtmp'),
-url(r'^test/$', 'guitarclubapp.views.test'),
+url(r'^test/$', 'guitarclubapp.views.bandedit1'),
+url(r'^datepicker/$', 'guitarclubapp.views.datepicker'),
+url(r'^band/upload/audio/$', 'guitarclubapp.views.add_audio'),
 
 
 #testing create bandpage - pawan
-url(r'^band/edit/$', createBandPage.as_view([bandPageForm1 , bandPageForm2])),
 
 #url(r'^band/editx/$', 'guitarclubapp.views.bandstep1'),
 #url(r'^band/edit_step2/$', 'guitarclubapp.views.bandstep2'),
 
-    url(r'^friend/accept/(?P<friendship_request_id>\d+)/$',
-        'guitarclubapp.views.friendship_accept'),
+
 
     #url(r'^login/', 'guitarclubapp.views.login_view', name='login'),
 

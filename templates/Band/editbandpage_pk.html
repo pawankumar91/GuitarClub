@@ -6,7 +6,7 @@
         {{field.error}}
     {% endfor %}
 
-    <form method = "post" action = "/band/edit/">{% csrf_token %}
+    <form method = "post" action = "/band/create/" enctype="multipart/form-data" >{% csrf_token %}
     <table>
         {{wizard.management_form}}
         {% if wizard.form.forms %}

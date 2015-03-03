@@ -11,36 +11,47 @@
         <meta name="description" content="Welcome to 'THE GUITAR CLUB' - A virtual world for all music lovers and music makers">
         <meta name="robots" content="all">
         <link href="/static/editorpage.css" rel="stylesheet">
-        <script type="text/javascript" async src="/static/editorpage.js"></script>
+        <script type="text/javascript" async src="/static/test.js"></script>
+        <script>
+            $(function() {
+    $( ".datepicker" ).datepicker({
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "1900:2012",
+      // You can put more options here.
+
+    });
+  });
+  </script>
 {% endblock %}
 
 {% block body %}
     <body>
+
 {% endblock %}
 
-
-{% block small_pic %}
-                    <div class="profile-picture small-profile-picture" style="background-image:url('{{ form.instance.profilePic.url  }}')">
-                        </div>
-{% endblock %}
 {% block content %}
+
+
+            <div class = "big-image">
+            </div>
+            <div class = "clicked-image" style="background-image:url('{{ form.instance.profilePic.url  }}')"></div>
                                  <!-- MIDDLE-CONTAINER -->
             <div class="middle-container">
-
                 <div class="profile"> <!-- PROFILE (MIDDLE-CONTAINER) -->
                     <div class="profile-left">
                         <form action = "/accounts/profile/" method = "post" enctype = "multipart/form-data">{% csrf_token %}
-                        <input type="button" class="red" id="pseudobutton" value="Upload Pic">
-                        <div class="button1">{{form.profilePic}}<br></div>
-                        <div class="profile-picture big-profile-picture clear " style="background-image:url('{{ form.instance.profilePic.url  }}')">
-                        </div>
-
+                        <!--<input type="button" class="red pc2" id="pseudobutton" value="Upload Pic">-->
+                        <div class="pc2"><p id="upload-pic"><b>Upload Pic     </b><i class="fa fa-camera"></i></p></div>
+                        <!--<div class="button1">-->{{form.profilePic}}<!--<br></div>-->
+                        <div class="profile-picture big-profile-picture clear " style="background-image:url('{{ form.instance.profilePic.url  }}')"></div>
+                        <div class="camera"><i class="fa fa-camera"></i></div>
                         <h1 class="user-name">{{first_name}} {{last_name}}</h1>
                         <div class="entry">
                             <h2 id="Gender">Gender : </h2>
                             {{form.gender}}
                         </div>
-                        <div class="entry">
+                        <div class="entry" id="datepicker">
                             <h2 id="dob">DOB:</h2>
                             {{form.dob}}
                         </div>
@@ -53,7 +64,7 @@
                             {{form.homeTown}}
                         </div>
                         <div class="pic_submit">
-                            <br><input type = "submit" value="Save Changes"/>
+                            <input type = "submit" value="Save Changes"/>
                         </div>
                         </form>
                     </div>
@@ -74,9 +85,17 @@
                                 <input id="songs" type="text" placeholder="Songs" /><br>
                             </li>
                         </ul>
-
-                    </form>
                     </div>
+                    </form>
+
+                    <div>
+                        {% for i in follow %}
+
+                            {{follow.band_id}}
+
+                        {% endfor %}
+                    </div>
+
                     <div class = "profile_add2">
                         <p>Music Interests</p><br><br>
                         {{follow.bandFollow}}<br>
